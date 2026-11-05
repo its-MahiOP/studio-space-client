@@ -75,7 +75,7 @@ export function HeroSlider() {
       slidesPerView: 1,
       grabCursor: true,
       autoplay: {
-        delay: 6500,
+        delay: 2500,
         disableOnInteraction: false,
         pauseOnMouseEnter: true,
       },
@@ -131,11 +131,11 @@ export function HeroSlider() {
       className="grain grain-dark relative isolate overflow-hidden bg-ink text-paper"
       aria-labelledby="hero-heading"
     >
-      <div className="hero-swiper h-[min(860px,calc(100svh-70px))] min-h-[660px] w-full">
+      <div className="hero-swiper h-[min(860px,calc(100svh-70px))] min-h-165 w-full">
         <div className="swiper-wrapper">
           {slides.map((slide, index) => (
             <div className="swiper-slide" key={slide.index}>
-              <div className="relative flex h-full min-h-[660px] w-full items-end">
+              <div className="relative flex h-full min-h-165 w-full items-end">
                 <Image
                   src={slide.image}
                   alt={slide.alt}
@@ -144,11 +144,11 @@ export function HeroSlider() {
                   sizes="100vw"
                   className="object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/78 to-ink/18" />
-                <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-transparent to-ink/20" />
+                <div className="absolute inset-0 bg-linear-to-r from-ink via-ink/78 to-ink/18" />
+                <div className="absolute inset-0 bg-linear-to-t from-ink/85 via-transparent to-ink/20" />
 
                 <div className="shell relative z-10 w-full pt-28 pb-36 sm:pb-40 lg:pb-36">
-                  <div className="max-w-[780px]">
+                  <div className="max-w-195">
                     <p className="eyebrow flex items-center gap-3 text-paper/58">
                       <span className="inline-block size-1.5 bg-sodium" />
                       {slide.eyebrow}
