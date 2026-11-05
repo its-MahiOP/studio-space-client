@@ -20,17 +20,17 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 const links = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboardIcon },
   {
-    href: "/dashboard/add-studio",
+    href: "/add-studio",
     label: "Add New Studio",
     icon: PlusIcon,
   },
   {
-    href: "/dashboard/listings",
+    href: "/my-listings",
     label: "My Studio Listings",
     icon: Building2Icon,
   },
   {
-    href: "/dashboard/bookings",
+    href: "/my-bookings",
     label: "My Bookings",
     icon: CalendarDaysIcon,
   },

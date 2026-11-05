@@ -1,19 +1,12 @@
-import { studios, featuredStudioSlugs, type Studio } from "@/data/studios";
-import type { CategorySlug } from "@/data/categories";
+import { categories, getCategory } from "@/data/categories";
+import type { Studio } from "@/types/studio";
 
-/**
- * Dummy data access layer.
- * Replace the bodies of these helpers with MongoDB / API calls later.
- * The home page intentionally asks for a limited set, mirroring `.limit(6)`.
- */
-export function getFeaturedStudios(limit = 6): Studio[] {
-  return featuredStudioSlugs
-    .map((slug) => studios.find((studio) => studio.slug === slug))
-    .filter((studio): studio is Studio => Boolean(studio))
-    .slice(0, limit);
-}
-
-export type StudioSort = "recommended" | "price-asc" | "price-desc" | "rating";
+export type StudioSort =
+  | "recommended"
+  | "newest"
+  | "price-asc"
+  | "price-desc"
+  | "rating";
 
 export interface StudioFilters {
   category?: string;
@@ -21,17 +14,33 @@ export interface StudioFilters {
   sort?: string;
 }
 
-export function getStudios({ category, query, sort }: StudioFilters = {}) {
+export function studioMatchesCategory(studio: Studio, identifier: string) {
+  const category = getCategory(identifier);
+  const needle = (category?.value ?? identifier).trim().toLowerCase();
+  return studio.category.trim().toLowerCase() === needle;
+}
+
+export function filterStudios(
+  studios: Studio[],
+  { category, query, sort }: StudioFilters = {},
+) {
   let result = [...studios];
 
   if (category) {
-    result = result.filter((studio) => studio.category === category);
+    result = result.filter((studio) => studioMatchesCategory(studio, category));
   }
 
-  if (query) {
+  if (query?.trim()) {
     const needle = query.trim().toLowerCase();
     result = result.filter((studio) =>
-      [studio.title, studio.location.city, studio.location.neighborhood, studio.category]
+      [
+        studio.title,
+        studio.location,
+        studio.category,
+        studio.overview,
+        studio.ownerName,
+        ...studio.amenities,
+      ]
         .join(" ")
         .toLowerCase()
         .includes(needle),
@@ -48,11 +57,19 @@ export function getStudios({ category, query, sort }: StudioFilters = {}) {
     case "rating":
       result.sort((a, b) => b.rating - a.rating);
       break;
+    case "newest":
+      result.sort(
+        (a, b) =>
+          new Date(b.createdAt ?? 0).getTime() -
+          new Date(a.createdAt ?? 0).getTime(),
+      );
+      break;
     default:
       result.sort(
         (a, b) =>
-          Number(b.featured) - Number(a.featured) ||
           b.rating - a.rating ||
+          new Date(b.createdAt ?? 0).getTime() -
+            new Date(a.createdAt ?? 0).getTime() ||
           a.title.localeCompare(b.title),
       );
   }
@@ -60,16 +77,43 @@ export function getStudios({ category, query, sort }: StudioFilters = {}) {
   return result;
 }
 
-export function getStudioBySlug(slug: string) {
-  return studios.find((studio) => studio.slug === slug);
-}
-
-export function getRelatedStudios(studio: Studio, limit = 3) {
+export function relatedStudios(
+  studio: Studio,
+  studios: Studio[],
+  limit = 3,
+) {
   return studios
-    .filter((item) => item.slug !== studio.slug && item.category === studio.category)
+    .filter(
+      (item) =>
+        item._id !== studio._id &&
+        item.category.trim().toLowerCase() ===
+          studio.category.trim().toLowerCase(),
+    )
     .slice(0, limit);
 }
 
-export function countByCategory(category: CategorySlug) {
-  return studios.filter((studio) => studio.category === category).length;
+export function countByCategory(studios: Studio[], slug: string) {
+  return studios.filter((studio) => studioMatchesCategory(studio, slug)).length;
 }
+
+export function cityFromLocation(location: string) {
+  const parts = location.split(",");
+  return (parts[parts.length - 1] ?? location).trim();
+}
+
+export function uniqueCities(studios: Studio[]) {
+  return new Set(
+    studios
+      .map((studio) => cityFromLocation(studio.location))
+      .filter(Boolean)
+      .map((city) => city.toLowerCase()),
+  ).size;
+}
+
+export function averageRating(studios: Studio[]) {
+  const rated = studios.filter((studio) => studio.rating > 0);
+  if (rated.length === 0) return 0;
+  return rated.reduce((total, studio) => total + studio.rating, 0) / rated.length;
+}
+
+export { categories };

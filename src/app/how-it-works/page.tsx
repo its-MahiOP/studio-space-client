@@ -135,7 +135,7 @@ export default function HowItWorksPage() {
               <ArrowUpRightIcon />
             </ButtonLink>
             <ButtonLink
-              href="/dashboard/add-studio"
+              href="/add-studio"
               variant="outline-light"
               size="lg"
             >

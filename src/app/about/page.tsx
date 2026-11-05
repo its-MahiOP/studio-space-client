@@ -138,7 +138,7 @@ export default function AboutPage() {
                 Explore the index
                 <ArrowUpRightIcon />
               </ButtonLink>
-              <ButtonLink href="/dashboard/add-studio" variant="outline" size="md">
+              <ButtonLink href="/add-studio" variant="outline" size="md">
                 List a room
               </ButtonLink>
             </div>
@@ -275,7 +275,7 @@ export default function AboutPage() {
             </p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
-            <ButtonLink href="/dashboard/add-studio" variant="primary" size="lg">
+            <ButtonLink href="/add-studio" variant="primary" size="lg">
               List your space
               <ArrowUpRightIcon />
             </ButtonLink>

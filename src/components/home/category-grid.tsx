@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -10,6 +12,8 @@ import {
 } from "lucide-react";
 
 import { categories, type CategoryIcon } from "@/data/categories";
+import { countByCategory } from "@/lib/studios";
+import { useStudios } from "@/hooks/use-api-data";
 import { SectionHeading } from "@/components/shared/section-heading";
 
 const iconMap: Record<CategoryIcon, typeof ApertureIcon> = {
@@ -21,6 +25,8 @@ const iconMap: Record<CategoryIcon, typeof ApertureIcon> = {
 };
 
 export function CategoryGrid() {
+  const { data: studios } = useStudios();
+
   return (
     <section className="border-y border-ink/10 bg-paper-deep/45 py-20 sm:py-24 lg:py-28">
       <div className="shell">
@@ -40,6 +46,7 @@ export function CategoryGrid() {
         <div className="mt-11 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
           {categories.map((category, index) => {
             const Icon = iconMap[category.icon];
+            const count = countByCategory(studios, category.slug);
             return (
               <Link
                 key={category.slug}
@@ -60,7 +67,7 @@ export function CategoryGrid() {
                     0{index + 1}
                   </span>
                   <span className="rounded-full border border-paper/22 bg-ink/20 px-2 py-1 text-[9px] tracking-[0.1em] text-paper/70 uppercase backdrop-blur-sm">
-                    {category.count} spaces
+                    {count} {count === 1 ? "space" : "spaces"}
                   </span>
                 </div>
 

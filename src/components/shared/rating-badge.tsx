@@ -13,6 +13,8 @@ export function RatingBadge({
   tone?: "paper" | "dark";
   className?: string;
 }) {
+  const rated = rating > 0;
+
   return (
     <span
       className={cn(
@@ -23,9 +25,14 @@ export function RatingBadge({
         className,
       )}
     >
-      <StarIcon className="size-3 fill-sodium stroke-sodium" />
-      {formatRating(rating)}
-      {typeof reviews === "number" ? (
+      <StarIcon
+        className={cn(
+          "size-3",
+          rated ? "fill-sodium stroke-sodium" : "stroke-muted-ink",
+        )}
+      />
+      {rated ? formatRating(rating) : "New"}
+      {rated && typeof reviews === "number" ? (
         <span
           className={cn(
             "font-normal",

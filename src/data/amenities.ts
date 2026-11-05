@@ -1,0 +1,32 @@
+export const AMENITY_OPTIONS = [
+  "Cyc wall",
+  "Blackout curtains",
+  "Natural light",
+  "Strobe lighting",
+  "Profoto strobes",
+  "Sound system",
+  "Acoustic treatment",
+  "Green room",
+  "Hair & makeup",
+  "Load-in dock",
+  "Freight elevator",
+  "Wi-Fi",
+  "Kitchenette",
+  "Parking",
+  "Seating area",
+  "Changing room",
+  "Recording booth",
+  "Live room",
+  "Mixing console",
+  "Work tables",
+  "Sink & water",
+  "Storage",
+] as const;
+
+export const CATEGORY_OPTIONS = [
+  "Photo Studio",
+  "Film Stage",
+  "Podcast Lounge",
+  "Music Suite",
+  "Workshop",
+] as const;

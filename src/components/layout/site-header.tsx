@@ -12,6 +12,7 @@ import {
   LogOutIcon,
   MenuIcon,
   PlusIcon,
+  ShieldCheckIcon,
 } from "lucide-react";
 
 import { navLinks } from "@/data/site";
@@ -65,7 +66,7 @@ export function SiteHeader() {
 
   return (
     <header
-      data-scrolled={scrolled ? "true" : "false"}
+      data-scrolled={scrolled ? "true" : false}
       className={cn(
         "sticky top-0 z-50 border-b border-ink/10 bg-paper/88 backdrop-blur-xl transition-shadow duration-300",
         scrolled && "shadow-[0_12px_40px_-30px_rgba(23,21,15,0.55)]",
@@ -146,21 +147,21 @@ export function SiteHeader() {
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="px-2 py-2"
-                  render={<Link href="/dashboard/add-studio" />}
+                  render={<Link href="/add-studio" />}
                 >
                   <PlusIcon />
                   Add New Studio
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="px-2 py-2"
-                  render={<Link href="/dashboard/listings" />}
+                  render={<Link href="/my-listings" />}
                 >
                   <Building2Icon />
                   My Studio Listings
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="px-2 py-2"
-                  render={<Link href="/dashboard/bookings" />}
+                  render={<Link href="/my-bookings" />}
                 >
                   <CalendarDaysIcon />
                   My Bookings

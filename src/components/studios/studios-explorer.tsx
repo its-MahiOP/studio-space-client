@@ -1,23 +1,27 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useMemo, useState, useTransition } from "react";
 import { cn } from "cn";
 import {
   ArrowUpRightIcon,
   ChevronDownIcon,
+  PlusIcon,
   SearchIcon,
   SlidersHorizontalIcon,
   XIcon,
 } from "lucide-react";
 
-import { categories } from "@/data/categories";
-import { getStudios, type StudioSort } from "@/lib/studios";
+import { categories, getCategory } from "@/data/categories";
+import { filterStudios, type StudioSort } from "@/lib/studios";
+import { useStudios } from "@/hooks/use-api-data";
 import { StudioCard } from "@/components/studios/studio-card";
+import { DataError, EmptyState, StudioGridSkeleton } from "@/components/shared/data-states";
 
 const sortOptions: { value: StudioSort; label: string }[] = [
   { value: "recommended", label: "Recommended" },
+  { value: "newest", label: "Newest first" },
   { value: "price-asc", label: "Price: low to high" },
   { value: "price-desc", label: "Price: high to low" },
   { value: "rating", label: "Top rated" },
@@ -38,13 +42,14 @@ export function StudiosExplorer() {
   const [searchValue, setSearchValue] = useState(query);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
+  const { data: studios, loading, error, reload } = useStudios();
+
   const results = useMemo(
-    () => getStudios({ category, query, sort }),
-    [category, query, sort],
+    () => filterStudios(studios, { category, query, sort }),
+    [studios, category, query, sort],
   );
 
-  const activeCategory =
-    categories.find((item) => item.slug === category) ?? null;
+  const activeCategory = getCategory(category);
 
   function updateParams(
     updates: Record<string, string | null>,
@@ -68,7 +73,9 @@ export function StudiosExplorer() {
     updateParams({ q: searchValue.trim() || null });
   }
 
-  const hasFilters = Boolean(category || query || (sort && sort !== "recommended"));
+  const hasFilters = Boolean(
+    category || query || (sort && sort !== "recommended"),
+  );
 
   return (
     <div className="shell pb-24">
@@ -81,13 +88,13 @@ export function StudiosExplorer() {
           >
             <SearchIcon className="size-4 shrink-0 text-muted-ink" />
             <label htmlFor="studio-search" className="sr-only">
-              Search studios by name or city
+              Search studios by name, city or amenity
             </label>
             <input
               id="studio-search"
               value={searchValue}
               onChange={(event) => setSearchValue(event.target.value)}
-              placeholder="Search studio, city or neighbourhood"
+              placeholder="Search studio, city or amenity"
               className="h-full min-w-0 flex-1 bg-transparent text-[13px] placeholder:text-muted-ink/70 focus:outline-none"
             />
             {searchValue ? (
@@ -213,12 +220,14 @@ export function StudiosExplorer() {
           <p className="mt-2 max-w-xl text-[13px] leading-6 text-muted-ink">
             {activeCategory
               ? activeCategory.description
-              : "Every room on StudioSpace, vetted and ready to book. Filter by craft, or search for a city you're shooting in."}
+              : "Every room on StudioSpace, straight from the live database. Filter by craft, or search for a city you're shooting in."}
           </p>
         </div>
         <p className="text-[11px] tracking-[0.14em] text-muted-ink uppercase">
-          {results.length} {results.length === 1 ? "space" : "spaces"}
-          {category || query ? (
+          {loading && studios.length === 0
+            ? "Loading spaces…"
+            : `${results.length} ${results.length === 1 ? "space" : "spaces"}`}
+          {hasFilters ? (
             <button
               type="button"
               onClick={() => {
@@ -233,39 +242,58 @@ export function StudiosExplorer() {
         </p>
       </div>
 
-      <div
-        aria-busy={pending}
-        className={cn(
-          "mt-8 grid gap-5 transition-opacity duration-300 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6",
-          pending && "pointer-events-none opacity-50",
-        )}
-      >
-        {results.map((studio, index) => (
-          <StudioCard key={studio.slug} studio={studio} priority={index < 3} />
-        ))}
-      </div>
-
-      {results.length === 0 ? (
-        <div className="mt-10 flex flex-col items-start gap-5 rounded-[22px] border border-dashed border-ink/20 bg-card-cream p-8 sm:flex-row sm:items-center sm:justify-between sm:p-12">
-          <div>
-            <p className="eyebrow text-clay">No rooms found</p>
-            <h2 className="display-md mt-3">
-              Nothing matches that search yet.
-            </h2>
-            <p className="mt-3 max-w-md text-[13px] leading-6 text-muted-ink">
-              Try a broader city, a different craft, or clear the filters and
-              browse the full index. New rooms are added every week.
-            </p>
-          </div>
-          <Link
-            href="/studios"
-            className="inline-flex h-11 shrink-0 items-center gap-2 rounded-full bg-ink px-5 text-[13px] font-medium text-paper transition-colors hover:bg-ink/85"
-          >
-            Reset the index
-            <ArrowUpRightIcon className="size-4" />
-          </Link>
+      {error ? (
+        <DataError message={error} onRetry={reload} className="mt-8" />
+      ) : loading && studios.length === 0 ? (
+        <div className="mt-8">
+          <StudioGridSkeleton />
         </div>
-      ) : null}
+      ) : results.length > 0 ? (
+        <div
+          aria-busy={pending || loading}
+          className={cn(
+            "mt-8 grid gap-5 transition-opacity duration-300 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6",
+            (pending || loading) && "pointer-events-none opacity-50",
+          )}
+        >
+          {results.map((studio, index) => (
+            <StudioCard key={studio._id} studio={studio} priority={index < 3} />
+          ))}
+        </div>
+      ) : studios.length === 0 ? (
+        <EmptyState
+          className="mt-8"
+          eyebrow="The index is empty"
+          title="The first room is yours to list."
+          description="There are no studios in the database yet. Add one from the host form and it will appear here instantly, with its own detail page."
+          action={
+            <Link
+              href="/add-studio"
+              className="inline-flex h-11 items-center gap-2 rounded-full bg-ink px-5 text-[13px] font-medium text-paper transition-colors hover:bg-ink/85"
+            >
+              <PlusIcon className="size-4" />
+              Add a studio
+            </Link>
+          }
+        />
+      ) : (
+        <EmptyState
+          className="mt-8"
+          eyebrow="No rooms found"
+          title="Nothing matches that search yet."
+          description="Try a broader city, a different craft, or clear the filters and browse the full index."
+          action={
+            <Link
+              href="/studios"
+              onClick={() => setSearchValue("")}
+              className="inline-flex h-11 items-center gap-2 rounded-full bg-ink px-5 text-[13px] font-medium text-paper transition-colors hover:bg-ink/85"
+            >
+              Reset the index
+              <ArrowUpRightIcon className="size-4" />
+            </Link>
+          }
+        />
+      )}
     </div>
   );
 }
@@ -274,20 +302,8 @@ export function StudiosSkeleton() {
   return (
     <div className="shell pb-24">
       <div className="mt-8 h-24 animate-pulse rounded-2xl bg-paper-deep/70" />
-      <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
-        {Array.from({ length: 6 }).map((_, index) => (
-          <div
-            key={index}
-            className="overflow-hidden rounded-[22px] border border-ink/10 bg-card-cream"
-          >
-            <div className="aspect-[4/3] animate-pulse bg-paper-deep" />
-            <div className="space-y-3 p-5">
-              <div className="h-5 w-2/3 animate-pulse rounded bg-paper-deep" />
-              <div className="h-3 w-1/2 animate-pulse rounded bg-paper-deep" />
-              <div className="h-9 w-full animate-pulse rounded bg-paper-deep/60" />
-            </div>
-          </div>
-        ))}
+      <div className="mt-8">
+        <StudioGridSkeleton />
       </div>
     </div>
   );

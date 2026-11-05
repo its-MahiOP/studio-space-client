@@ -9,11 +9,11 @@ import { formatCurrency, formatRating } from "@/lib/format";
 export function MobileBookingBar({
   rate,
   rating,
-  reviews,
+  onBook,
 }: {
   rate: number;
   rating: number;
-  reviews: number;
+  onBook: () => void;
 }) {
   const [hidden, setHidden] = useState(false);
 
@@ -47,17 +47,24 @@ export function MobileBookingBar({
             </span>
           </p>
           <p className="mt-0.5 inline-flex items-center gap-1 text-[10px] text-muted-ink">
-            <StarIcon className="size-3 fill-sodium stroke-sodium" />
-            {formatRating(rating)} · {reviews} reviews
+            <StarIcon
+              className={
+                rating > 0
+                  ? "size-3 fill-sodium stroke-sodium"
+                  : "size-3 stroke-muted-ink"
+              }
+            />
+            {rating > 0 ? formatRating(rating) : "New listing"}
           </p>
         </div>
-        <a
-          href="#book"
+        <button
+          type="button"
+          onClick={onBook}
           className="inline-flex h-11 shrink-0 items-center gap-2 rounded-full bg-ink px-5 text-[12px] font-semibold text-paper transition-colors hover:bg-ink/88"
         >
-          Check dates
+          Book now
           <ArrowUpRightIcon className="size-3.5" />
-        </a>
+        </button>
       </div>
     </div>
   );

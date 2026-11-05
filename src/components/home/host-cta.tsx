@@ -25,7 +25,7 @@ export function HostCTA() {
           </p>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row lg:flex-col lg:items-stretch">
-          <ButtonLink href="/dashboard/add-studio" variant="primary" size="lg">
+          <ButtonLink href="/add-studio" variant="primary" size="lg">
             List your space
             <ArrowUpRightIcon />
           </ButtonLink>

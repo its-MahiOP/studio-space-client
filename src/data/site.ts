@@ -27,8 +27,8 @@ export const footerNav = [
   {
     title: "For hosts",
     links: [
-      { href: "/dashboard/add-studio", label: "List your space" },
-      { href: "/dashboard", label: "Host dashboard" },
+      { href: "/add-studio", label: "List your space" },
+      { href: "/my-listings", label: "My listings" },
       { href: "/how-it-works", label: "Host guarantee" },
       { href: "/about", label: "Creator support" },
     ],
@@ -38,7 +38,7 @@ export const footerNav = [
     links: [
       { href: "/login", label: "Log in" },
       { href: "/register", label: "Create account" },
-      { href: "/dashboard/bookings", label: "My bookings" },
+      { href: "/my-bookings", label: "My bookings" },
       { href: "/terms", label: "Terms & privacy" },
     ],
   },
@@ -49,11 +49,4 @@ export const socials = [
   { href: "https://instagram.com", label: "Instagram", icon: "instagram" },
   { href: "https://linkedin.com", label: "LinkedIn", icon: "linkedin" },
   { href: "https://youtube.com", label: "YouTube", icon: "youtube" },
-] as const;
-
-export const homeStats = [
-  { value: "1,200+", label: "Vetted spaces" },
-  { value: "48", label: "Cities" },
-  { value: "4.9", label: "Average rating" },
-  { value: "12k", label: "Working creators" },
 ] as const;
