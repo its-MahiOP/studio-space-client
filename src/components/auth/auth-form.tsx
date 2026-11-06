@@ -10,62 +10,255 @@ import {
   CheckIcon,
   EyeIcon,
   EyeOffIcon,
+  ImageIcon,
   LockIcon,
   MailIcon,
   ShieldCheckIcon,
-  SparklesIcon,
   UserIcon,
+  XIcon,
 } from "lucide-react";
 
-import { useAuth } from "@/components/providers/auth-provider";
-
-const demoEmail = "ava@studiospace.demo";
-const demoPassword = "studio123";
+import { authClient } from "@/lib/auth-client";
+import { toast } from "@/components/ui/toast";
 
 type Mode = "login" | "register";
 
+/** Password rules required by the assignment (enforced before sign-up). */
+const PASSWORD_RULES = [
+  { label: "An uppercase letter", test: (value: string) => /[A-Z]/.test(value) },
+  { label: "A lowercase letter", test: (value: string) => /[a-z]/.test(value) },
+  { label: "At least 6 characters", test: (value: string) => value.length >= 6 },
+];
+
+const GENERIC_HTTP_ERRORS = new Set([
+  "Bad Request",
+  "Unauthorized",
+  "Forbidden",
+  "Not Found",
+  "Internal Server Error",
+  "Too Many Requests",
+]);
+
+/** Pull a human readable message out of a BetterFetchError. */
+function readErrorMessage(
+  error: { message?: string; error?: unknown } | null | undefined,
+  fallback: string,
+) {
+  if (!error) return fallback;
+
+  const body = error.error as { message?: unknown } | undefined;
+  if (body && typeof body.message === "string" && body.message.trim()) {
+    return body.message;
+  }
+  if (
+    typeof error.message === "string" &&
+    error.message.trim() &&
+    !GENERIC_HTTP_ERRORS.has(error.message)
+  ) {
+    return error.message;
+  }
+  return fallback;
+}
+
+/** The route to return to after signing in (set by RequireAuth), else home. */
+function getRedirectTarget() {
+  const redirect = new URLSearchParams(window.location.search).get("redirect");
+  if (!redirect || !redirect.startsWith("/") || redirect.startsWith("//")) {
+    return "/";
+  }
+  return redirect;
+}
+
+function isValidHttpUrl(value: string) {
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+function GoogleIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
+      <path
+        fill="#4285F4"
+        d="M23.49 12.27c0-.79-.07-1.54-.2-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"
+      />
+      <path
+        fill="#34A853"
+        d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96H1.29v3.09C3.26 21.3 7.31 24 12 24z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M5.27 14.29c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.62H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.38l3.98-3.09z"
+      />
+      <path
+        fill="#EA4335"
+        d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.98 3.09C6.22 6.86 8.87 4.75 12 4.75z"
+      />
+    </svg>
+  );
+}
+
 export function AuthForm({ mode }: { mode: Mode }) {
   const router = useRouter();
-  const { signIn } = useAuth();
-
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState(mode === "login" ? demoEmail : "");
-  const [password, setPassword] = useState(mode === "login" ? demoPassword : "");
-  const [showPassword, setShowPassword] = useState(false);
-  const [agreed, setAgreed] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-
   const isLogin = mode === "login";
 
-  function complete(nextName?: string, nextEmail?: string) {
-    signIn({ name: nextName, email: nextEmail });
-    router.push("/dashboard");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [photoUrl, setPhotoUrl] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  function fail(title: string, message: string) {
+    setError(message);
+    toast.add({ type: "error", title, description: message });
   }
 
-  function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+    setPasswordError(null);
 
-    if (!isLogin && name.trim().length < 2) {
-      setError("Tell us what to call you — at least two characters.");
+    const trimmedEmail = email.trim();
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      fail(
+        "Check your email",
+        "That email doesn't look right. Try name@studio.com.",
+      );
       return;
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      setError("That email doesn't look right. Try name@studio.com.");
-      return;
-    }
-    if (password.length < 6) {
-      setError("Passwords need at least six characters in the demo.");
-      return;
-    }
-    if (!isLogin && !agreed) {
-      setError("Please accept the terms to create a demo account.");
-      return;
+
+    if (isLogin) {
+      if (!password) {
+        fail("Password required", "Enter your password to continue.");
+        return;
+      }
+    } else {
+      if (name.trim().length < 2) {
+        fail(
+          "Check your name",
+          "Tell us what to call you — at least two characters.",
+        );
+        return;
+      }
+      if (!isValidHttpUrl(photoUrl.trim())) {
+        fail(
+          "Check your photo URL",
+          "Enter a full photo URL starting with http:// or https://.",
+        );
+        return;
+      }
+      const failedRules = PASSWORD_RULES.filter(
+        (rule) => !rule.test(password),
+      );
+      if (failedRules.length > 0) {
+        const message = `Password must include ${failedRules
+          .map((rule) => rule.label.toLowerCase())
+          .join(", ")}.`;
+        setPasswordError(message);
+        toast.add({
+          type: "error",
+          title: "Password doesn't meet the rules",
+          description: message,
+        });
+        return;
+      }
     }
 
     setSubmitting(true);
-    complete(isLogin ? undefined : name.trim(), email.trim());
+    try {
+      if (isLogin) {
+        const { error: signInError } = await authClient.signIn.email({
+          email: trimmedEmail,
+          password,
+        });
+        if (signInError) {
+          fail(
+            "Could not sign in",
+            readErrorMessage(signInError, "Invalid email or password."),
+          );
+          return;
+        }
+        // Land on the route the user originally wanted, else the home page.
+        router.push(getRedirectTarget());
+        router.refresh();
+      } else {
+        const { error: signUpError } = await authClient.signUp.email({
+          name: name.trim(),
+          email: trimmedEmail,
+          password,
+          image: photoUrl.trim(),
+        });
+        if (signUpError) {
+          fail(
+            "Could not create the account",
+            readErrorMessage(
+              signUpError,
+              "Something went wrong. Please try again.",
+            ),
+          );
+          return;
+        }
+        // BetterAuth signs the user in on sign-up; sign them out again so the
+        // next step is signing in with the new credentials.
+        await authClient.signOut();
+        toast.add({
+          type: "success",
+          title: "Account created",
+          description: "Sign in with your new credentials to continue.",
+        });
+        router.push("/login");
+      }
+    } catch {
+      fail(
+        "Network error",
+        "We couldn't reach the server. Check your connection and try again.",
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function onGoogleContinue() {
+    setError(null);
+    setPasswordError(null);
+    setSubmitting(true);
+    try {
+      const { error: socialError } = await authClient.signIn.social({
+        provider: "google",
+        // Login returns to the desired route; registration lands on home.
+        callbackURL: isLogin ? getRedirectTarget() : "/",
+      });
+      if (socialError) {
+        fail(
+          "Could not continue with Google",
+          readErrorMessage(socialError, "Google sign-in failed. Try again."),
+        );
+        setSubmitting(false);
+      }
+      // On success the client redirects to Google straight away.
+    } catch {
+      fail(
+        "Network error",
+        "We couldn't reach the server. Try again in a moment.",
+      );
+      setSubmitting(false);
+    }
+  }
+
+  function onForgotPassword() {
+    toast.add({
+      type: "info",
+      title: "Forgot password?",
+      description:
+        "Password reset isn't enabled in this build — get in touch and we'll help you back in.",
+    });
   }
 
   return (
@@ -141,35 +334,17 @@ export function AuthForm({ mode }: { mode: Mode }) {
               </>
             ) : (
               <>
-                Start with
+                Create your
                 <br />
-                <span className="italic text-clay">a room.</span>
+                <span className="italic text-clay">account.</span>
               </>
             )}
           </h1>
           <p className="mt-4 text-[13px] leading-6 text-muted-ink">
             {isLogin
-              ? "This is a demo. The credentials are prefilled — sign in and explore the host dashboard."
-              : "Create a demo account to book rooms and list your own space. No card, no email confirmation."}
+              ? "Sign in to book rooms, manage listings and track your shoots."
+              : "Create an account to book rooms and list your own space. No card, no email confirmation."}
           </p>
-
-          <div className="mt-6 rounded-2xl border border-sodium/45 bg-sodium/10 p-4">
-            <p className="flex items-center gap-2 text-[11px] font-semibold tracking-[0.08em] text-ink uppercase">
-              <SparklesIcon className="size-3.5 text-clay" />
-              Demo account
-            </p>
-            <p className="mt-2 text-[12px] leading-5 text-ink/68">
-              {demoEmail} · {demoPassword}
-            </p>
-            <button
-              type="button"
-              onClick={() => complete()}
-              className="mt-3 inline-flex h-9 items-center gap-2 rounded-full bg-ink px-4 text-[11px] font-semibold text-paper transition-colors hover:bg-ink/85"
-            >
-              Enter as Ava Chen
-              <ArrowRightIcon className="size-3.5" />
-            </button>
-          </div>
 
           <form onSubmit={onSubmit} className="mt-7 space-y-4" noValidate>
             {!isLogin ? (
@@ -211,6 +386,30 @@ export function AuthForm({ mode }: { mode: Mode }) {
               </div>
             </div>
 
+            {!isLogin ? (
+              <div>
+                <label
+                  htmlFor="photoUrl"
+                  className="eyebrow block text-muted-ink"
+                >
+                  Photo URL
+                </label>
+                <div className="relative mt-2">
+                  <ImageIcon className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-ink" />
+                  <input
+                    id="photoUrl"
+                    name="photoUrl"
+                    type="url"
+                    autoComplete="url"
+                    value={photoUrl}
+                    onChange={(event) => setPhotoUrl(event.target.value)}
+                    placeholder="https://your-site.com/photo.jpg"
+                    className="h-11 w-full rounded-xl border border-ink/15 bg-card-cream pr-4 pl-10 text-[13px] transition-colors placeholder:text-muted-ink/60 focus:border-ink/40 focus:outline-none focus-visible:ring-3 focus-visible:ring-sodium/25"
+                  />
+                </div>
+              </div>
+            ) : null}
+
             <div>
               <label htmlFor="password" className="eyebrow block text-muted-ink">
                 Password
@@ -223,8 +422,20 @@ export function AuthForm({ mode }: { mode: Mode }) {
                   type={showPassword ? "text" : "password"}
                   autoComplete={isLogin ? "current-password" : "new-password"}
                   value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  placeholder="At least six characters"
+                  onChange={(event) => {
+                    setPassword(event.target.value);
+                    if (
+                      passwordError &&
+                      PASSWORD_RULES.every((rule) =>
+                        rule.test(event.target.value),
+                      )
+                    ) {
+                      setPasswordError(null);
+                    }
+                  }}
+                  placeholder={
+                    isLogin ? "Enter your password" : "Create a strong password"
+                  }
                   className="h-11 w-full rounded-xl border border-ink/15 bg-card-cream pr-11 pl-10 text-[13px] transition-colors placeholder:text-muted-ink/60 focus:border-ink/40 focus:outline-none focus-visible:ring-3 focus-visible:ring-sodium/25"
                 />
                 <button
@@ -240,45 +451,52 @@ export function AuthForm({ mode }: { mode: Mode }) {
                   )}
                 </button>
               </div>
+
+              {!isLogin ? (
+                <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+                  {PASSWORD_RULES.map((rule) => {
+                    const passed = rule.test(password);
+                    return (
+                      <li
+                        key={rule.label}
+                        className={cn(
+                          "flex items-center gap-1.5 text-[11px]",
+                          passed ? "text-sage-ink" : "text-muted-ink",
+                        )}
+                      >
+                        {passed ? (
+                          <CheckIcon className="size-3" />
+                        ) : (
+                          <XIcon className="size-3" />
+                        )}
+                        {rule.label}
+                      </li>
+                    );
+                  })}
+                </ul>
+              ) : null}
+
+              {passwordError ? (
+                <p
+                  role="alert"
+                  className="mt-2 text-[11px] leading-5 text-clay"
+                >
+                  {passwordError}
+                </p>
+              ) : null}
             </div>
 
-            {!isLogin ? (
-              <label className="flex items-start gap-2.5 text-[11px] leading-5 text-muted-ink">
-                <input
-                  type="checkbox"
-                  checked={agreed}
-                  onChange={(event) => setAgreed(event.target.checked)}
-                  className="mt-1 size-3.5 shrink-0 accent-[var(--ink)]"
-                />
-                <span>
-                  I agree to the{" "}
-                  <Link
-                    href="/terms"
-                    className="text-ink underline decoration-sodium decoration-2 underline-offset-2"
-                  >
-                    terms of service
-                  </Link>{" "}
-                  and understand this is a demo marketplace.
-                </span>
-              </label>
-            ) : (
-              <div className="flex items-center justify-between text-[11px]">
-                <label className="flex items-center gap-2 text-muted-ink">
-                  <input
-                    type="checkbox"
-                    defaultChecked
-                    className="size-3.5 accent-[var(--ink)]"
-                  />
-                  Remember me
-                </label>
+            {isLogin ? (
+              <div className="flex items-center justify-end">
                 <button
                   type="button"
-                  className="text-ink/60 transition-colors hover:text-ink"
+                  onClick={onForgotPassword}
+                  className="text-[11px] text-ink/60 transition-colors hover:text-ink"
                 >
                   Forgot password?
                 </button>
               </div>
-            )}
+            ) : null}
 
             {error ? (
               <p
@@ -298,13 +516,31 @@ export function AuthForm({ mode }: { mode: Mode }) {
               )}
             >
               {submitting
-                ? "Opening your dashboard…"
+                ? isLogin
+                  ? "Signing in…"
+                  : "Creating your account…"
                 : isLogin
                   ? "Sign in"
-                  : "Create demo account"}
+                  : "Create account"}
               {!submitting ? <ArrowRightIcon className="size-4" /> : null}
             </button>
           </form>
+
+          <div className="mt-5 flex items-center gap-3 text-[10px] tracking-[0.1em] text-muted-ink uppercase">
+            <span className="h-px flex-1 bg-ink/10" />
+            <span>or</span>
+            <span className="h-px flex-1 bg-ink/10" />
+          </div>
+
+          <button
+            type="button"
+            onClick={onGoogleContinue}
+            disabled={submitting}
+            className="mt-5 inline-flex h-12 w-full items-center justify-center gap-2.5 rounded-full border border-ink/15 bg-card-cream text-[13px] font-semibold text-ink transition-colors hover:bg-ink/4 focus-visible:ring-3 focus-visible:ring-sodium/45 disabled:opacity-60"
+          >
+            <GoogleIcon className="size-4" />
+            {isLogin ? "Continue with Google" : "Sign up with Google"}
+          </button>
 
           <p className="mt-6 text-center text-[12px] text-muted-ink">
             {isLogin ? "New to StudioSpace? " : "Already have an account? "}
@@ -318,7 +554,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
 
           <p className="mt-6 flex items-center justify-center gap-2 border-t border-ink/10 pt-5 text-[10px] tracking-[0.1em] text-muted-ink uppercase">
             <ShieldCheckIcon className="size-3.5 text-sage" />
-            Demo only · no payment is taken
+            Encrypted sign-in · your details stay private
           </p>
         </div>
       </div>
