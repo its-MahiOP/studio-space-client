@@ -24,7 +24,24 @@ export class ApiError extends Error {
 
 type RequestOptions = RequestInit & { signal?: AbortSignal };
 
-async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+/**
+ * Re-issues the HTTPOnly API JWT cookie. Called once after a 401 so a stale
+ * token never blocks a request the user is clearly allowed to make.
+ */
+async function refreshApiToken() {
+  if (typeof window === "undefined") return;
+  try {
+    await fetch("/api/auth-token", { credentials: "same-origin" });
+  } catch {
+    // The retry below surfaces the real error if the refresh fails.
+  }
+}
+
+async function request<T>(
+  path: string,
+  options: RequestOptions = {},
+  allowRetry = true,
+): Promise<T> {
   const { headers, body, ...rest } = options;
 
   let response: Response;
@@ -32,6 +49,10 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     response = await fetch(`${API_BASE_URL}${path}`, {
       ...rest,
       cache: "no-store",
+      // Attach the HTTPOnly JWT cookie so server-side mutations can authorize
+      // the caller (Challenge 1). Cookies are host-scoped, so the cookie set
+      // on localhost:3000 is sent to localhost:5000 as well.
+      credentials: "include",
       headers: {
         Accept: "application/json",
         ...(body ? { "Content-Type": "application/json" } : {}),
@@ -57,6 +78,12 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     } catch {
       data = null;
     }
+  }
+
+  if (response.status === 401 && allowRetry) {
+    // The API cookie may be missing or expired — mint a fresh one, retry once.
+    await refreshApiToken();
+    return request<T>(path, options, false);
   }
 
   if (!response.ok) {

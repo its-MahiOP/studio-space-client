@@ -4,6 +4,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   type ReactNode,
 } from "react";
@@ -44,8 +45,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [data]);
 
+  // Challenge 1: while a session is active, keep the HTTPOnly API JWT cookie
+  // fresh so the Express server keeps accepting our mutations. The cookie is
+  // HttpOnly, so this code only triggers issuance — it can never read it.
+  useEffect(() => {
+    if (!user) return;
+
+    const syncApiToken = () => {
+      fetch("/api/auth-token", { credentials: "same-origin" }).catch(() => {
+        // Offline or mid-rebuild: the 401 retry in the API layer recovers.
+      });
+    };
+
+    syncApiToken();
+    const intervalId = window.setInterval(syncApiToken, 10 * 60 * 1000);
+    return () => window.clearInterval(intervalId);
+  }, [user]);
+
   const signOut = useCallback(async () => {
     await authClient.signOut();
+    // Drop the API JWT cookie so mutations stop being authorized immediately.
+    fetch("/api/auth-token", { method: "DELETE", credentials: "same-origin" }).catch(
+      () => undefined,
+    );
     toast.add({
       type: "success",
       title: "Signed out",
