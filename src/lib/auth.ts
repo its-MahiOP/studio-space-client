@@ -11,15 +11,17 @@ export const auth = betterAuth({
     }),
     emailAndPassword: {
         enabled: true,
+        // The registration form enforces: uppercase, lowercase, 6+ characters.
+        minPasswordLength: 6,
     },
     socialProviders: {
         google: {
-            clientId: process.env.GOOGLE_CLIENT_ID as string,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+            clientId: process.env.BETTER_AUTH_GOOGLE_CLIENT_ID as string,
+            clientSecret: process.env.BETTER_AUTH_GOOGLE_CLIENT_SECRET as string,
         },
         github: {
-            clientId: process.env.GITHUB_CLIENT_ID as string,
-            clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
+            clientId: process.env.BETTER_AUTH_GITHUB_CLIENT_ID as string,
+            clientSecret: process.env.BETTER_AUTH_GITHUB_CLIENT_SECRET as string,
         },
     },
 });
