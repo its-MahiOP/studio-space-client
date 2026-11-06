@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { BrandSpinner } from "@/components/shared/route-loader";
 
 export function RequireAuth({ children }: { children: ReactNode }) {
   const router = useRouter();
@@ -24,7 +25,9 @@ export function RequireAuth({ children }: { children: ReactNode }) {
     return (
       <div className="shell flex min-h-[55vh] items-center justify-center py-20">
         <div className="w-full max-w-sm text-center">
-          <div className="mx-auto size-10 animate-pulse rounded-full bg-paper-deep" />
+          <div className="flex justify-center">
+            <BrandSpinner size="sm" />
+          </div>
           <p className="mt-5 text-[13px] text-muted-ink">
             {ready ? "Taking you to sign in…" : "Opening your workspace…"}
           </p>

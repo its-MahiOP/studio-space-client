@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { BrandSpinner } from "@/components/shared/route-loader";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const links = [
@@ -66,7 +67,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     return (
       <div className="shell flex min-h-[60vh] items-center justify-center py-20">
         <div className="w-full max-w-sm text-center">
-          <div className="mx-auto size-10 animate-pulse rounded-full bg-paper-deep" />
+          <div className="flex justify-center">
+            <BrandSpinner size="sm" />
+          </div>
           <p className="mt-5 text-[13px] text-muted-ink">
             {ready ? "Taking you to sign in…" : "Opening your dashboard…"}
           </p>
