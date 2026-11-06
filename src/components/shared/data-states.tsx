@@ -3,6 +3,8 @@
 import { AlertTriangleIcon, RefreshCwIcon } from "lucide-react";
 import { cn } from "cn";
 
+import { ApertureMark } from "@/components/layout/logo";
+
 export function DataError({
   message,
   onRetry,
@@ -81,12 +83,15 @@ export function EmptyState({
   title,
   description,
   action,
+  icon,
   className,
 }: {
   eyebrow?: string;
   title: string;
   description: string;
   action?: React.ReactNode;
+  /** Defaults to the StudioSpace aperture mark; pass a lucide icon to match the context. */
+  icon?: React.ReactNode;
   className?: string;
 }) {
   return (
@@ -97,7 +102,10 @@ export function EmptyState({
       )}
     >
       <div>
-        <p className="eyebrow text-clay">{eyebrow}</p>
+        <span className="grid size-11 place-items-center rounded-full border border-ink/12 bg-paper-deep/60 text-ink">
+          {icon ?? <ApertureMark className="size-6" />}
+        </span>
+        <p className="eyebrow mt-5 text-clay">{eyebrow}</p>
         <h2 className="display-md mt-3">{title}</h2>
         <p className="mt-3 max-w-md text-[13px] leading-6 text-muted-ink">
           {description}

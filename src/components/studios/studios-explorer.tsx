@@ -282,6 +282,7 @@ export function StudiosExplorer() {
           eyebrow="No rooms found"
           title="Nothing matches that search yet."
           description="Try a broader city, a different craft, or clear the filters and browse the full index."
+          icon={<SearchIcon className="size-5" />}
           action={
             <Link
               href="/studios"

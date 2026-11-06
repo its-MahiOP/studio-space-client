@@ -208,6 +208,7 @@ export function MyBookings() {
         <EmptyState
           className="mt-6"
           eyebrow={filter === "all" ? "No reservations yet" : `No ${filter.toLowerCase()} bookings`}
+          icon={<CalendarClockIcon className="size-5" />}
           title={
             data.length === 0
               ? "Your first room is waiting."

@@ -303,10 +303,22 @@ export function DashboardOverview() {
               </h2>
             </div>
             {activity.length === 0 ? (
-              <p className="px-5 py-6 text-[11px] leading-5 text-muted-ink">
-                Your listings and reservations will appear here as soon as you
-                create them.
-              </p>
+              <div className="px-5 py-6">
+                <span className="grid size-10 place-items-center rounded-full border border-ink/12 bg-paper-deep/60">
+                  <SparklesIcon className="size-4.5 text-clay" />
+                </span>
+                <p className="mt-4 text-[11px] leading-5 text-muted-ink">
+                  Your listings and reservations will appear here as soon as you
+                  create them.
+                </p>
+                <Link
+                  href="/add-studio"
+                  className="mt-4 inline-flex h-9 items-center gap-1.5 rounded-full bg-ink px-4 text-[11px] font-semibold text-paper transition-colors hover:bg-ink/85"
+                >
+                  <PlusIcon className="size-3.5" />
+                  Create your first listing
+                </Link>
+              </div>
             ) : (
               <ul className="divide-y divide-ink/8">
                 {activity.map((item) => (

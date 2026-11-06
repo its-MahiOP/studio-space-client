@@ -105,6 +105,7 @@ export function MyListings() {
         <EmptyState
           className="mt-8"
           eyebrow="No listings yet"
+          icon={<Building2Icon className="size-5" />}
           title="Your first room is one form away."
           description="Publish a studio and it will show up here with edit and delete controls, plus its own public detail page."
           action={
