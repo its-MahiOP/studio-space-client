@@ -4,9 +4,17 @@ import { ReactNode, Suspense } from "react";
 import "./globals.css";
 
 import { AuthProvider } from "@/components/providers/auth-provider";
+import { ThemeProvider } from "@/components/providers/theme-provider";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { Toaster } from "@/components/ui/toast";
+
+/**
+ * Challenge 3 — applied before the first paint so the stored theme never
+ * flashes the wrong palette. Reads localStorage, falls back to the OS
+ * preference, and toggles the `.dark` class that flips every design token.
+ */
+const themeInitScript = `(function(){try{var t=localStorage.getItem("studiospace-theme");if(t!=="dark"&&t!=="light"){t=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}if(t==="dark"){document.documentElement.classList.add("dark");}}catch(e){}})();`;
 
 const instrumentSans = Instrument_Sans({
   variable: "--font-instrument-sans",
@@ -77,34 +85,40 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html
       lang="en"
       className={`${instrumentSans.variable} ${instrumentSerif.variable} ${geistMono.variable} h-full`}
+      // The pre-paint theme script may add `.dark` to <html> before React
+      // hydrates; suppressHydrationWarning keeps that class intact.
+      suppressHydrationWarning
     >
       <body className="flex min-h-full flex-col bg-paper text-ink antialiased">
-        <AuthProvider>
-          <Toaster>
-            <a
-              href="#main-content"
-              className="sr-only z-100 rounded-full bg-ink px-4 py-2 text-sm text-paper focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
-            >
-              Skip to content
-            </a>
-            {/* The header reads the pathname, which is only known at request
-                time on dynamic routes — Suspense keeps prerendering working. */}
-            <Suspense
-              fallback={
-                <div
-                  aria-hidden="true"
-                  className="h-[70px] border-b border-ink/10 bg-paper/88"
-                />
-              }
-            >
-              <SiteHeader />
-            </Suspense>
-            <main id="main-content" className="flex-1">
-              {children}
-            </main>
-            <SiteFooter />
-          </Toaster>
-        </AuthProvider>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <ThemeProvider>
+          <AuthProvider>
+            <Toaster>
+              <a
+                href="#main-content"
+                className="sr-only z-100 rounded-full bg-ink px-4 py-2 text-sm text-paper focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
+              >
+                Skip to content
+              </a>
+              {/* The header reads the pathname, which is only known at request
+                  time on dynamic routes — Suspense keeps prerendering working. */}
+              <Suspense
+                fallback={
+                  <div
+                    aria-hidden="true"
+                    className="h-[70px] border-b border-ink/10 bg-paper/88"
+                  />
+                }
+              >
+                <SiteHeader />
+              </Suspense>
+              <main id="main-content" className="flex-1">
+                {children}
+              </main>
+              <SiteFooter />
+            </Toaster>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

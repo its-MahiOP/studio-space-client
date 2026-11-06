@@ -46,24 +46,47 @@
 }
 
 .dark {
-  --background: #12110d;
-  --foreground: var(--paper);
-  --card: #1b1913;
-  --card-foreground: var(--paper);
-  --popover: #1b1913;
-  --popover-foreground: var(--paper);
-  --primary: var(--paper);
-  --primary-foreground: var(--ink);
-  --secondary: #26231a;
-  --secondary-foreground: var(--paper);
-  --muted: #26231a;
-  --muted-foreground: #a7a08e;
-  --accent: var(--sodium);
-  --accent-foreground: var(--ink);
-  --destructive: #e07a6c;
-  --border: #353126;
-  --input: #353126;
-  --ring: var(--sodium);
+  /* Challenge 3 — brand palette flip. Every surface, border, label and icon in
+     the app derives from these tokens, so overriding them here switches the
+     full system light <-> dark. Ink bands (`bg-ink text-paper`) invert too:
+     they become light panels with dark text, keeping contrast either way. */
+  --paper: #14130e;
+  --paper-deep: #211f17;
+  --card-cream: #1c1a13;
+  --ink: #f3efe3;
+  --ink-soft: #cfc9b8;
+  --muted-ink: #a29b8a;
+  /* Deep amber stays readable both as text on light panels and as a surface
+     under the now-light `--ink` foreground (buttons, dots, focus rings). */
+  --sodium: #9a6b12;
+  --clay: #cf7b57;
+  --sage: #94a288;
+  --sage-ink: #b3c1a7;
+  --line: #38342a;
+
+  /* Semantic tokens (shadcn). Literals, because in dark mode `var(--paper)`
+     and `var(--ink)` point at the inverted ends of the brand palette. */
+  --background: #14130e;
+  --foreground: #f3efe3;
+  --card: #1c1a13;
+  --card-foreground: #f3efe3;
+  --popover: #1c1a13;
+  --popover-foreground: #f3efe3;
+  --primary: #f3efe3;
+  --primary-foreground: #17150f;
+  --secondary: #211f17;
+  --secondary-foreground: #f3efe3;
+  --muted: #211f17;
+  --muted-foreground: #a29b8a;
+  --accent: #9a6b12;
+  --accent-foreground: #f3efe3;
+  --destructive: #d0604f;
+  --border: #38342a;
+  --input: #38342a;
+  --ring: #9a6b12;
+
+  /* Native controls (date/time pickers, scrollbars) follow the theme too. */
+  color-scheme: dark;
 }
 
 @theme inline {

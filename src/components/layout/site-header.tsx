@@ -11,12 +11,14 @@ import {
   LayoutDashboardIcon,
   LogOutIcon,
   MenuIcon,
+  MoonIcon,
   PlusIcon,
-  ShieldCheckIcon,
+  SunIcon,
 } from "lucide-react";
 
 import { navLinks } from "@/data/site";
 import { useAuth } from "@/components/providers/auth-provider";
+import { useTheme } from "@/components/providers/theme-provider";
 import { Logo } from "@/components/layout/logo";
 import { ButtonLink } from "@/components/shared/button-link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -54,6 +56,7 @@ function initials(name: string) {
 export function SiteHeader() {
   const pathname = usePathname();
   const { user, ready, signOut } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -100,6 +103,21 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden items-center gap-2.5 lg:flex">
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label={
+              theme === "dark" ? "Switch to light theme" : "Switch to dark theme"
+            }
+            title={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+            className="grid size-10 place-items-center rounded-full border border-ink/12 text-ink transition-colors hover:bg-ink/5 focus-visible:ring-3 focus-visible:ring-sodium/45"
+          >
+            {theme === "dark" ? (
+              <SunIcon className="size-4.5" />
+            ) : (
+              <MoonIcon className="size-4.5" />
+            )}
+          </button>
           {!ready ? (
             <span className="h-9 w-48 animate-pulse rounded-full bg-paper-deep" />
           ) : user ? (
@@ -237,6 +255,26 @@ export function SiteHeader() {
             </nav>
 
             <div className="mt-auto space-y-4 border-t border-ink/10 p-5">
+              <button
+                type="button"
+                onClick={toggleTheme}
+                aria-label={
+                  theme === "dark"
+                    ? "Switch to light theme"
+                    : "Switch to dark theme"
+                }
+                className="inline-flex h-11 w-full items-center justify-between rounded-full border border-ink/15 px-4 text-[13px] font-medium text-ink/70 transition-colors hover:bg-ink/5 hover:text-ink"
+              >
+                <span className="inline-flex items-center gap-2">
+                  {theme === "dark" ? (
+                    <SunIcon className="size-4" />
+                  ) : (
+                    <MoonIcon className="size-4" />
+                  )}
+                  {theme === "dark" ? "Light mode" : "Dark mode"}
+                </span>
+                <span className="eyebrow text-muted-ink">Theme</span>
+              </button>
               {ready && user ? (
                 <>
                   <div className="mb-5 flex items-center gap-3">

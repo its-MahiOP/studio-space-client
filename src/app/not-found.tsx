@@ -13,7 +13,9 @@ function StudioSceneIllustration() {
       viewBox="0 0 520 380"
       role="img"
       aria-label="Illustration of a photo studio with a lit backdrop, a camera on a tripod and a softbox light."
-      className="h-auto w-full"
+      // Explicit so every `currentColor` shape flips with the theme tokens
+      // even if this scene is ever rendered outside the `text-paper` band.
+      className="h-auto w-full text-paper"
     >
       <defs>
         <linearGradient id="wallGlow" x1="0" y1="0" x2="1" y2="1">
@@ -46,9 +48,9 @@ function StudioSceneIllustration() {
         width="272"
         height="248"
         rx="20"
-        fill="#f5f1e6"
+        fill="currentColor"
         fillOpacity="0.06"
-        stroke="#f5f1e6"
+        stroke="currentColor"
         strokeOpacity="0.18"
       />
       <rect
@@ -66,7 +68,7 @@ function StudioSceneIllustration() {
         y1="312"
         x2="496"
         y2="312"
-        stroke="#f5f1e6"
+        stroke="currentColor"
         strokeOpacity="0.24"
         strokeWidth="2"
         strokeLinecap="round"
@@ -76,19 +78,19 @@ function StudioSceneIllustration() {
         cy="330"
         rx="78"
         ry="9"
-        fill="#f5f1e6"
+        fill="currentColor"
         fillOpacity="0.06"
       />
 
       {/* Apple box */}
-      <rect x="92" y="268" width="68" height="44" rx="6" fill="#b65c3a" />
+      <rect x="92" y="268" width="68" height="44" rx="6" className="fill-clay" />
       <rect
         x="114"
         y="282"
         width="24"
         height="9"
         rx="4.5"
-        fill="#17150f"
+        className="fill-ink"
         fillOpacity="0.55"
       />
 
@@ -98,24 +100,24 @@ function StudioSceneIllustration() {
         y1="0"
         x2="150"
         y2="44"
-        stroke="#f5f1e6"
+        stroke="currentColor"
         strokeOpacity="0.35"
         strokeWidth="2"
       />
       <path
         d="M130 74 L150 44 L170 74 Z"
-        fill="#f5f1e6"
+        fill="currentColor"
         fillOpacity="0.16"
-        stroke="#f5f1e6"
+        stroke="currentColor"
         strokeOpacity="0.32"
         strokeLinejoin="round"
       />
       <circle cx="150" cy="78" r="24" fill="url(#bulbGlow)" />
-      <circle cx="150" cy="78" r="7" fill="#e0a33b" />
+      <circle cx="150" cy="78" r="7" className="fill-sodium" />
 
       {/* Camera on a tripod */}
       <g
-        stroke="#f5f1e6"
+        stroke="currentColor"
         strokeOpacity="0.55"
         strokeWidth="4"
         strokeLinecap="round"
@@ -131,23 +133,23 @@ function StudioSceneIllustration() {
         width="68"
         height="48"
         rx="9"
-        fill="#fffdf7"
+        fill="currentColor"
         fillOpacity="0.95"
       />
-      <rect x="236" y="187" width="26" height="13" rx="4" fill="#fffdf7" />
-      <circle cx="252" cy="222" r="18" fill="#17150f" />
+      <rect x="236" y="187" width="26" height="13" rx="4" fill="currentColor" />
+      <circle cx="252" cy="222" r="18" className="fill-ink" />
       <circle
         cx="252"
         cy="222"
         r="18"
         fill="none"
-        stroke="#f5f1e6"
+        stroke="currentColor"
         strokeOpacity="0.7"
         strokeWidth="2"
       />
-      <circle cx="252" cy="222" r="9" fill="#e0a33b" />
-      <circle cx="248" cy="218" r="3" fill="#fffdf7" fillOpacity="0.85" />
-      <circle cx="275" cy="207" r="3.5" fill="#b65c3a" />
+      <circle cx="252" cy="222" r="9" className="fill-sodium" />
+      <circle cx="248" cy="218" r="3" fill="currentColor" fillOpacity="0.85" />
+      <circle cx="275" cy="207" r="3.5" className="fill-clay" />
 
       {/* Softbox on its stand */}
       <g transform="rotate(-18 414 150)">
@@ -157,24 +159,24 @@ function StudioSceneIllustration() {
           width="84"
           height="64"
           rx="10"
-          fill="#fffdf7"
+          fill="currentColor"
           fillOpacity="0.92"
         />
         <rect x="383" y="125" width="66" height="46" rx="6" fill="url(#softFace)" />
       </g>
-      <circle cx="414" cy="180" r="6" fill="#f5f1e6" fillOpacity="0.65" />
+      <circle cx="414" cy="180" r="6" fill="currentColor" fillOpacity="0.65" />
       <line
         x1="414"
         y1="182"
         x2="414"
         y2="306"
-        stroke="#f5f1e6"
+        stroke="currentColor"
         strokeOpacity="0.6"
         strokeWidth="4"
         strokeLinecap="round"
       />
       <g
-        stroke="#f5f1e6"
+        stroke="currentColor"
         strokeOpacity="0.55"
         strokeWidth="4"
         strokeLinecap="round"
