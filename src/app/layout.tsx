@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Instrument_Sans, Instrument_Serif } from "next/font/google";
-import { ReactNode } from "react";
+import { ReactNode, Suspense } from "react";
 import "./globals.css";
 
 import { AuthProvider } from "@/components/providers/auth-provider";
@@ -87,7 +87,18 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             >
               Skip to content
             </a>
-            <SiteHeader />
+            {/* The header reads the pathname, which is only known at request
+                time on dynamic routes — Suspense keeps prerendering working. */}
+            <Suspense
+              fallback={
+                <div
+                  aria-hidden="true"
+                  className="h-[70px] border-b border-ink/10 bg-paper/88"
+                />
+              }
+            >
+              <SiteHeader />
+            </Suspense>
             <main id="main-content" className="flex-1">
               {children}
             </main>

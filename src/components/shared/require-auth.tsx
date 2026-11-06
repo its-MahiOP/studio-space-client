@@ -1,22 +1,24 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 
 export function RequireAuth({ children }: { children: ReactNode }) {
   const router = useRouter();
-  const pathname = usePathname();
   const { user, ready } = useAuth();
 
   useEffect(() => {
     if (ready && !user) {
-      // Send the user back to this exact route after signing in.
-      router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
+      // Read the current route from window.location inside the effect so
+      // prerendering never depends on runtime URL data, then send the user
+      // back to this exact route after signing in.
+      const returnTo = `${window.location.pathname}${window.location.search}`;
+      router.replace(`/login?redirect=${encodeURIComponent(returnTo)}`);
     }
-  }, [ready, user, router, pathname]);
+  }, [ready, user, router]);
 
   if (!ready || !user) {
     return (
