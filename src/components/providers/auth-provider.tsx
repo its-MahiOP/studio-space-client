@@ -10,6 +10,7 @@ import {
 import { useRouter } from "next/navigation";
 
 import { authClient } from "@/lib/auth-client";
+import { toast } from "@/components/ui/toast";
 
 export interface AuthUser {
   name: string;
@@ -45,6 +46,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = useCallback(async () => {
     await authClient.signOut();
+    toast.add({
+      type: "success",
+      title: "Signed out",
+      description: "You've been signed out on this device. See you soon.",
+    });
     router.refresh();
   }, [router]);
 

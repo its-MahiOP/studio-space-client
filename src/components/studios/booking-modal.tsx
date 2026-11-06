@@ -109,11 +109,16 @@ export function BookingModal({
       onOpenChange(false);
       router.push("/my-bookings");
     } catch (cause) {
-      setError(
+      const message =
         cause instanceof Error
           ? cause.message
-          : "The booking could not be saved. Try again.",
-      );
+          : "The booking could not be saved. Try again.";
+      setError(message);
+      toast.add({
+        type: "error",
+        title: "Could not request booking",
+        description: message,
+      });
     } finally {
       setSubmitting(false);
     }

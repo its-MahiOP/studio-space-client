@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { ArrowRightIcon, CheckIcon } from "lucide-react";
 
+import { toast } from "@/components/ui/toast";
+
 export function NewsletterForm() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
@@ -13,6 +15,11 @@ export function NewsletterForm() {
       onSubmit={(event) => {
         event.preventDefault();
         if (!email.trim()) return;
+        toast.add({
+          type: "success",
+          title: "You're on the list",
+          description: "Watch your inbox for occasional studio drops and host notes.",
+        });
         setSubmitted(true);
         setEmail("");
       }}

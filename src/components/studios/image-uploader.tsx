@@ -5,6 +5,7 @@ import { CheckIcon, ImagePlusIcon, LinkIcon, Loader2Icon, UploadIcon } from "luc
 
 import { uploadImageToImgbb } from "@/lib/api";
 import { StudioImage } from "@/components/shared/studio-image";
+import { toast } from "@/components/ui/toast";
 
 export function ImageUploader({
   value,
@@ -36,10 +37,20 @@ export function ImageUploader({
       const hostedUrl = await uploadImageToImgbb(file);
       onChange(hostedUrl);
       setUrlDraft(hostedUrl);
+      toast.add({
+        type: "success",
+        title: "Image uploaded",
+        description: "Your photo is hosted and attached to the listing.",
+      });
     } catch (cause) {
-      setError(
-        cause instanceof Error ? cause.message : "The upload failed. Try again.",
-      );
+      const message =
+        cause instanceof Error ? cause.message : "The upload failed. Try again.";
+      setError(message);
+      toast.add({
+        type: "error",
+        title: "Upload failed",
+        description: message,
+      });
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = "";

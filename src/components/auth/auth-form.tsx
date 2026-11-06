@@ -185,6 +185,11 @@ export function AuthForm({ mode }: { mode: Mode }) {
           );
           return;
         }
+        toast.add({
+          type: "success",
+          title: "Welcome back",
+          description: "You're signed in — picking up where you left off.",
+        });
         // Land on the route the user originally wanted, else the home page.
         router.push(getRedirectTarget());
         router.refresh();
