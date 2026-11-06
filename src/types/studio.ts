@@ -62,5 +62,7 @@ export interface BookingInput {
   userName: string;
   hostEmail: string;
   bookingDate: string;
+  /** Length of the session in hours; the server derives the end of the window. */
+  durationHours: number;
   totalPrice: number;
 }

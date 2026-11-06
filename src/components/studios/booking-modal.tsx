@@ -14,7 +14,7 @@ import {
   ShieldCheckIcon,
 } from "lucide-react";
 
-import { createBooking } from "@/lib/api";
+import { ApiError, createBooking } from "@/lib/api";
 import type { Studio } from "@/types/studio";
 import { formatCurrency } from "@/lib/format";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -99,6 +99,7 @@ export function BookingModal({
         userName: user.name,
         hostEmail: studio.ownerEmail,
         bookingDate: `${date}T${time}`,
+        durationHours: hours,
         totalPrice: total,
       });
       toast.add({
@@ -113,10 +114,12 @@ export function BookingModal({
         cause instanceof Error
           ? cause.message
           : "The booking could not be saved. Try again.";
+      // 409 = the server found an overlapping confirmed booking (Challenge 2).
+      const slotTaken = cause instanceof ApiError && cause.status === 409;
       setError(message);
       toast.add({
-        type: "error",
-        title: "Could not request booking",
+        type: slotTaken ? "warning" : "error",
+        title: slotTaken ? "That time slot is taken" : "Could not request booking",
         description: message,
       });
     } finally {
