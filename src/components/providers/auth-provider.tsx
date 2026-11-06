@@ -4,13 +4,14 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
-  useState,
   type ReactNode,
 } from "react";
+import { useRouter } from "next/navigation";
 
-export interface DemoUser {
+import { authClient } from "@/lib/auth-client";
+
+export interface AuthUser {
   name: string;
   email: string;
   avatar: string;
@@ -18,75 +19,38 @@ export interface DemoUser {
 }
 
 interface AuthContextValue {
-  user: DemoUser | null;
+  user: AuthUser | null;
+  /** True until the BetterAuth session has been resolved (or confirmed absent). */
   ready: boolean;
-  signIn: (options?: { email?: string; name?: string }) => void;
-  signOut: () => void;
+  signOut: () => Promise<void>;
 }
-
-const STORAGE_KEY = "studiospace.demo-user";
-
-export const DEMO_USER: DemoUser = {
-  name: "Ava Chen",
-  email: "ava@studiospace.demo",
-  avatar: "/images/avatars/ava.jpg",
-  role: "Creator & host",
-};
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<DemoUser | null>(null);
-  const [ready, setReady] = useState(false);
+  const router = useRouter();
+  const { data, isPending } = authClient.useSession();
 
-  useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw) as DemoUser;
-        if (parsed?.email) {
-          // Hydrate the demo session once from localStorage after mount.
-          // eslint-disable-next-line react-hooks/set-state-in-effect
-          setUser(parsed);
-        }
-      }
-    } catch {
-      // Demo-only persistence; a blocked storage API should not break the UI.
-    } finally {
-      setReady(true);
-    }
-  }, []);
+  const user = useMemo<AuthUser | null>(() => {
+    const sessionUser = data?.user;
+    if (!sessionUser) return null;
 
-  const signIn = useCallback((options?: { email?: string; name?: string }) => {
-    const email = options?.email?.trim() || DEMO_USER.email;
-    const name = options?.name?.trim() || DEMO_USER.name;
-    const nextUser: DemoUser = {
-      ...DEMO_USER,
-      name,
-      email,
-      role: name === DEMO_USER.name ? DEMO_USER.role : "Creator",
+    return {
+      name: sessionUser.name,
+      email: sessionUser.email,
+      avatar: sessionUser.image ?? "",
+      role: "StudioSpace member",
     };
+  }, [data]);
 
-    setUser(nextUser);
-    try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextUser));
-    } catch {
-      // Ignore storage failures in the demo.
-    }
-  }, []);
-
-  const signOut = useCallback(() => {
-    setUser(null);
-    try {
-      window.localStorage.removeItem(STORAGE_KEY);
-    } catch {
-      // Ignore storage failures in the demo.
-    }
-  }, []);
+  const signOut = useCallback(async () => {
+    await authClient.signOut();
+    router.refresh();
+  }, [router]);
 
   const value = useMemo(
-    () => ({ user, ready, signIn, signOut }),
-    [user, ready, signIn, signOut],
+    () => ({ user, ready: !isPending, signOut }),
+    [user, isPending, signOut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

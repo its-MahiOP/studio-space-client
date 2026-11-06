@@ -57,9 +57,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (ready && !user) {
-      router.replace("/login");
+      // Send the user back to the dashboard after signing in.
+      router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
     }
-  }, [ready, user, router]);
+  }, [ready, user, router, pathname]);
 
   if (!ready || !user) {
     return (

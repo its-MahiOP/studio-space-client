@@ -1,20 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 
 export function RequireAuth({ children }: { children: ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
   const { user, ready } = useAuth();
 
   useEffect(() => {
     if (ready && !user) {
-      router.replace("/login");
+      // Send the user back to this exact route after signing in.
+      router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
     }
-  }, [ready, user, router]);
+  }, [ready, user, router, pathname]);
 
   if (!ready || !user) {
     return (
