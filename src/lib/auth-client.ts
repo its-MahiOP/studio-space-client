@@ -1,4 +1,5 @@
 import { createAuthClient } from "better-auth/react";
+import { jwtClient } from "better-auth/client/plugins";
 
 /**
  * Single auth client for the whole app.
@@ -8,4 +9,6 @@ import { createAuthClient } from "better-auth/react";
  * Sharing one instance keeps the session store in sync across every
  * `useSession()` consumer (header, auth guard, forms).
  */
-export const authClient = createAuthClient();
+export const authClient = createAuthClient({ 
+    plugins: [jwtClient()] 
+});
