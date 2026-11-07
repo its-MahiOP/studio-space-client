@@ -37,7 +37,7 @@ export function StudioCard({
         />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/45 via-transparent to-transparent opacity-80" />
         <span className="absolute top-4 left-4 inline-flex h-7 items-center rounded-full bg-paper/92 px-3 text-[10px] font-semibold tracking-[0.14em] uppercase backdrop-blur-sm">
-          {category?.label ?? studio.category ?? "Studio"}
+          {category?.value ?? studio.category ?? "Studio"}
         </span>
         <RatingBadge rating={studio.rating} className="absolute top-4 right-4" />
       </Link>

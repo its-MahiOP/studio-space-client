@@ -110,7 +110,7 @@ function normalizeStudio(raw: Partial<Studio> & { _id: string }): Studio {
     ...raw,
     _id: String(raw._id),
     title: raw.title ?? "Untitled studio",
-    category: raw.category ?? "Workshop",
+    category: raw.category ?? "Art Workshop",
     hourlyRate: toNumber(raw.hourlyRate),
     securityDeposit: toNumber(raw.securityDeposit),
     maxCapacity: toNumber(raw.maxCapacity),

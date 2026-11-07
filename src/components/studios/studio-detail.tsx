@@ -160,7 +160,7 @@ export function StudioDetail() {
             <header className="mt-8 border-b border-ink/10 pb-7">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="inline-flex h-7 items-center rounded-full bg-ink px-3 text-[10px] font-semibold tracking-[0.12em] text-paper uppercase">
-                  {category?.label ?? studio.category}
+                  {category?.value ?? studio.category}
                 </span>
                 <span className="inline-flex h-7 items-center gap-1.5 rounded-full border border-sage/40 bg-sage/10 px-3 text-[10px] font-semibold tracking-[0.1em] text-sage-ink uppercase">
                   <span className="size-1.5 rounded-full bg-sage" />

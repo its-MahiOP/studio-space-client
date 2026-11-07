@@ -176,7 +176,7 @@ export function HeroSlider() {
                         <ArrowUpRightIcon />
                       </ButtonLink>
                       <ButtonLink
-                        href="/register?intent=host"
+                        href="/studios"
                         variant="outline-light"
                         size="lg"
                       >

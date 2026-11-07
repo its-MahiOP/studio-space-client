@@ -25,8 +25,8 @@ export const AMENITY_OPTIONS = [
 
 export const CATEGORY_OPTIONS = [
   "Photo Studio",
-  "Film Stage",
-  "Podcast Lounge",
+  "Sound Stage",
+  "Podcast Room",
   "Music Suite",
-  "Workshop",
+  "Art Workshop",
 ] as const;

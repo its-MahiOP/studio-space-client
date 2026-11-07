@@ -9,7 +9,7 @@ import {
 export const metadata: Metadata = {
   title: "Explore studios",
   description:
-    "Browse photo studios, film stages, podcast lounges, music suites and workshops from independent hosts. Filter by craft, city and price.",
+    "Browse photo studios, sound stages, podcast rooms, music suites and art workshops from independent hosts. Filter by craft, city and price.",
 };
 
 export default function StudiosPage() {

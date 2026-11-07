@@ -1,9 +1,9 @@
 export type CategorySlug =
   | "photo-studios"
-  | "film-stages"
-  | "podcast-lounges"
+  | "sound-stages"
+  | "podcast-rooms"
   | "music-suites"
-  | "workshops";
+  | "art-workshops";
 
 export type CategoryIcon =
   | "aperture"
@@ -28,25 +28,25 @@ export const categories: StudioCategory[] = [
   {
     slug: "photo-studios",
     value: "Photo Studio",
-    label: "Photo Studio",
+    label: "Photo Studios",
     shortLabel: "Photo",
     description: "Cyc walls, daylight rooms and fully rigged sets.",
     image: "/images/categories/photo.jpg",
     icon: "aperture",
   },
   {
-    slug: "film-stages",
-    value: "Film Stage",
-    label: "Film Stage",
+    slug: "sound-stages",
+    value: "Sound Stage",
+    label: "Sound Stages",
     shortLabel: "Stage",
     description: "Acoustically treated floors built for motion.",
     image: "/images/categories/sound.jpg",
     icon: "clapperboard",
   },
   {
-    slug: "podcast-lounges",
-    value: "Podcast Lounge",
-    label: "Podcast Lounge",
+    slug: "podcast-rooms",
+    value: "Podcast Room",
+    label: "Podcast Rooms",
     shortLabel: "Podcast",
     description: "Quiet, warm rooms with broadcast-ready mics.",
     image: "/images/categories/podcast.jpg",
@@ -55,17 +55,17 @@ export const categories: StudioCategory[] = [
   {
     slug: "music-suites",
     value: "Music Suite",
-    label: "Music Suite",
+    label: "Music Suites",
     shortLabel: "Music",
     description: "Writing rooms, live rooms and analog consoles.",
     image: "/images/categories/music.jpg",
     icon: "music",
   },
   {
-    slug: "workshops",
-    value: "Workshop",
-    label: "Workshop",
-    shortLabel: "Workshop",
+    slug: "art-workshops",
+    value: "Art Workshop",
+    label: "Art Workshops",
+    shortLabel: "Art",
     description: "Mess-friendly spaces made for making by hand.",
     image: "/images/categories/art.jpg",
     icon: "palette",
