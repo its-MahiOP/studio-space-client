@@ -7,6 +7,7 @@ import {
   ArrowUpRightIcon,
   CalendarClockIcon,
   ClockIcon,
+  DownloadIcon,
   Loader2Icon,
   MailIcon,
   PlusIcon,
@@ -16,6 +17,7 @@ import {
 
 import type { Booking, BookingStatus } from "@/types/studio";
 import { updateBookingStatus } from "@/lib/api";
+import { downloadBookingInvoice } from "@/lib/invoice";
 import {
   formatBookingDate,
   formatBookingTime,
@@ -59,6 +61,7 @@ const filters: { id: "all" | BookingStatus; label: string }[] = [
 export function MyBookings() {
   const { user } = useAuth();
   const email = user?.email ?? "";
+  const customerName = user?.name ?? "";
   const { data, loading, error, reload } = useBookings(email);
 
   const [filter, setFilter] = useState<"all" | BookingStatus>("all");
@@ -310,6 +313,22 @@ export function MyBookings() {
                       >
                         <XCircleIcon className="size-3" />
                         Cancel booking
+                      </button>
+                    ) : null}
+                    {booking.status === "Confirmed" ||
+                    booking.status === "Completed" ? (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          downloadBookingInvoice(booking, {
+                            name: booking.userName || customerName,
+                            email: booking.userEmail || email,
+                          })
+                        }
+                        className="inline-flex h-8 items-center gap-1.5 rounded-full border border-ink/15 px-3 text-[10px] font-medium transition-colors hover:bg-ink/5"
+                      >
+                        <DownloadIcon className="size-3" />
+                        Download invoice
                       </button>
                     ) : null}
                     <span className="ml-auto font-mono text-[9px] text-ink/30">
