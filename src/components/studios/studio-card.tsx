@@ -7,6 +7,7 @@ import type { Studio } from "@/types/studio";
 import { formatCurrency } from "@/lib/format";
 import { RatingBadge } from "@/components/shared/rating-badge";
 import { StudioImage } from "@/components/shared/studio-image";
+import { SaveButton } from "@/components/studios/save-button";
 
 export function StudioCard({
   studio,
@@ -27,20 +28,27 @@ export function StudioCard({
         className,
       )}
     >
-      <Link href={href} className="relative block aspect-[4/3] overflow-hidden">
-        <StudioImage
-          src={studio.imageUrl}
-          alt={`${studio.title} — ${category?.label ?? studio.category} in ${studio.location}`}
-          priority={priority}
-          className="size-full"
-          imageClassName="transition-transform duration-700 ease-out group-hover:scale-[1.045]"
+      <div className="relative">
+        <Link href={href} className="relative block aspect-[4/3] overflow-hidden">
+          <StudioImage
+            src={studio.imageUrl}
+            alt={`${studio.title} — ${category?.label ?? studio.category} in ${studio.location}`}
+            priority={priority}
+            className="size-full"
+            imageClassName="transition-transform duration-700 ease-out group-hover:scale-[1.045]"
+          />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/45 via-transparent to-transparent opacity-80" />
+          <span className="absolute top-4 left-4 inline-flex h-7 items-center rounded-full bg-paper/92 px-3 text-[10px] font-semibold tracking-[0.14em] uppercase backdrop-blur-sm">
+            {category?.value ?? studio.category ?? "Studio"}
+          </span>
+          <RatingBadge rating={studio.rating} className="absolute top-4 right-4" />
+        </Link>
+        <SaveButton
+          studioId={studio._id}
+          title={studio.title}
+          className="absolute right-4 bottom-4 shadow-[var(--shadow-soft)]"
         />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/45 via-transparent to-transparent opacity-80" />
-        <span className="absolute top-4 left-4 inline-flex h-7 items-center rounded-full bg-paper/92 px-3 text-[10px] font-semibold tracking-[0.14em] uppercase backdrop-blur-sm">
-          {category?.value ?? studio.category ?? "Studio"}
-        </span>
-        <RatingBadge rating={studio.rating} className="absolute top-4 right-4" />
-      </Link>
+      </div>
 
       <div className="flex flex-1 flex-col p-5">
         <div className="flex items-start justify-between gap-4">

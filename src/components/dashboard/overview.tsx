@@ -8,6 +8,7 @@ import {
   CalendarDaysIcon,
   ClockIcon,
   EyeIcon,
+  HeartIcon,
   PlusIcon,
   SparklesIcon,
   StarIcon,
@@ -405,7 +406,7 @@ export function DashboardOverview() {
         </div>
       </div>
 
-      <section className="mt-6 grid gap-3 sm:grid-cols-3">
+      <section className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {[
           {
             href: "/my-listings",
@@ -418,6 +419,12 @@ export function DashboardOverview() {
             title: "Check the calendar",
             body: "See every reservation and cancel pending ones.",
             icon: CalendarDaysIcon,
+          },
+          {
+            href: "/wishlist",
+            title: "Saved studios",
+            body: "Reopen the shortlist you hearted earlier.",
+            icon: HeartIcon,
           },
           {
             href: "/studios",

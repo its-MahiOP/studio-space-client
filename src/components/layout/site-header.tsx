@@ -8,6 +8,7 @@ import {
   Building2Icon,
   CalendarDaysIcon,
   ChevronDownIcon,
+  HeartIcon,
   LayoutDashboardIcon,
   LogOutIcon,
   MenuIcon,
@@ -184,6 +185,13 @@ export function SiteHeader() {
                   <CalendarDaysIcon />
                   My Bookings
                 </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="px-2 py-2"
+                  render={<Link href="/wishlist" />}
+                >
+                  <HeartIcon />
+                  Saved Studios
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   variant="destructive"
@@ -255,6 +263,16 @@ export function SiteHeader() {
             </nav>
 
             <div className="mt-auto space-y-4 border-t border-ink/10 p-5">
+              {ready && user ? (
+                <Link
+                  href="/wishlist"
+                  onClick={() => setMobileOpen(false)}
+                  className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-full border border-ink/15 text-[13px] font-medium text-ink/70 transition-colors hover:bg-ink/5 hover:text-ink"
+                >
+                  <HeartIcon className="size-4" />
+                  Saved studios
+                </Link>
+              ) : null}
               <button
                 type="button"
                 onClick={toggleTheme}

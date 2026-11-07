@@ -5,6 +5,7 @@ import "./globals.css";
 
 import { AuthProvider } from "@/components/providers/auth-provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
+import { WishlistProvider } from "@/components/providers/wishlist-provider";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { Toaster } from "@/components/ui/toast";
@@ -93,6 +94,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <ThemeProvider>
           <AuthProvider>
+            <WishlistProvider>
             <Toaster>
               <a
                 href="#main-content"
@@ -117,6 +119,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               </main>
               <SiteFooter />
             </Toaster>
+            </WishlistProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

@@ -31,5 +31,6 @@ export const config = {
     "/my-bookings/:path*",
     "/my-listings/:path*",
     "/studios/edit/:path*",
+    "/wishlist/:path*",
   ],
 };
