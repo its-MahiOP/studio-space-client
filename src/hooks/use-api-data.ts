@@ -87,14 +87,23 @@ export function useAsyncData<T>(
 }
 
 export function useStudios(
-  params: { ownerEmail?: string; category?: string } = {},
+  params: {
+    ownerEmail?: string;
+    category?: string;
+    search?: string;
+    limit?: number;
+    sort?: string;
+  } = {},
 ) {
   const ownerEmail = params.ownerEmail ?? "";
   const category = params.category ?? "";
+  const search = params.search ?? "";
+  const limit = params.limit ?? 0;
+  const sort = params.sort ?? "";
 
   return useAsyncData<Studio[]>(
-    (signal) => listStudios({ ownerEmail, category }, signal),
-    [ownerEmail, category],
+    (signal) => listStudios({ ownerEmail, category, search, limit, sort }, signal),
+    [ownerEmail, category, search, limit, sort],
     [],
   );
 }

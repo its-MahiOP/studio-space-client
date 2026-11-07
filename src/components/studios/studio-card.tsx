@@ -53,8 +53,8 @@ export function StudioCard({
             <span className="text-xl font-semibold tracking-[-0.03em]">
               {formatCurrency(studio.hourlyRate)}
             </span>
-            <span className="block text-[10px] tracking-[0.12em] text-muted-ink uppercase">
-              per hour
+            <span className="ml-1 text-[10px] tracking-[0.12em] text-muted-ink uppercase">
+              / hr
             </span>
           </p>
         </div>
@@ -70,7 +70,7 @@ export function StudioCard({
           </span>
         </div>
 
-        <div className="mt-5 mt-auto flex items-center justify-between gap-4 border-t border-ink/10 pt-4">
+        <div className="mt-auto flex items-center justify-between gap-4 border-t border-ink/10 pt-4">
           <span className="text-[11px] tracking-[0.12em] text-muted-ink uppercase">
             {studio.securityDeposit > 0
               ? `${formatCurrency(studio.securityDeposit)} deposit`

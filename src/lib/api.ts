@@ -141,12 +141,23 @@ function normalizeBooking(raw: Partial<Booking> & { _id: string }): Booking {
 }
 
 export async function listStudios(
-  params: { ownerEmail?: string; category?: string } = {},
+  params: {
+    ownerEmail?: string;
+    category?: string;
+    search?: string;
+    /** Server-side cap, used by the home page's `.limit(6)` featured query. */
+    limit?: number;
+    /** Server-side sort: recommended (default), newest, price-asc… */
+    sort?: string;
+  } = {},
   signal?: AbortSignal,
 ): Promise<Studio[]> {
   const query = new URLSearchParams();
   if (params.ownerEmail) query.set("ownerEmail", params.ownerEmail);
   if (params.category) query.set("category", params.category);
+  if (params.search) query.set("search", params.search);
+  if (params.limit) query.set("limit", String(params.limit));
+  if (params.sort) query.set("sort", params.sort);
   const queryString = query.toString();
   const suffix = queryString ? `?${queryString}` : "";
   const data = await request<Studio[]>(`/studios${suffix}`, { signal });
@@ -211,7 +222,7 @@ export async function updateBookingStatus(id: string, status: BookingStatus) {
 
 /**
  * Uploads an image to ImgBB and returns the hosted URL.
- * Requires NEXT_PUBLIC_IMGBB_API_KEY in .env.local.
+ * Requires NEXT_PUBLIC_IMGBB_API_KEY in the project's .env file.
  */
 export async function uploadImageToImgbb(file: File): Promise<string> {
   const key = process.env.NEXT_PUBLIC_IMGBB_API_KEY?.trim();

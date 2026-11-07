@@ -65,4 +65,6 @@ export interface BookingInput {
   /** Length of the session in hours; the server derives the end of the window. */
   durationHours: number;
   totalPrice: number;
+  /** New reservations always start as Pending; the API enforces this. */
+  status: BookingStatus;
 }

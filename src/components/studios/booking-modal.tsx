@@ -66,6 +66,10 @@ export function BookingModal({
   const subtotal = studio.hourlyRate * hours;
   const total = subtotal + studio.securityDeposit;
 
+  // Local "today" for the date picker, so past days can't even be selected.
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
@@ -101,6 +105,7 @@ export function BookingModal({
         bookingDate: `${date}T${time}`,
         durationHours: hours,
         totalPrice: total,
+        status: "Pending",
       });
       toast.add({
         type: "success",
@@ -174,6 +179,7 @@ export function BookingModal({
                     <input
                       id="booking-date"
                       type="date"
+                      min={today}
                       value={date}
                       onChange={(event) => setDate(event.target.value)}
                       className="h-11 w-full rounded-xl border border-ink/15 bg-card-cream pr-3 pl-9 text-[12px] focus:border-ink/40 focus:outline-none"

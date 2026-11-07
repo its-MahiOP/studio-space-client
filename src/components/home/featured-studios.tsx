@@ -11,7 +11,11 @@ import { DataError, StudioGridSkeleton } from "@/components/shared/data-states";
 import { StudioCard } from "@/components/studios/studio-card";
 
 export function FeaturedStudios() {
-  const { data: studios, loading, error, reload } = useStudios();
+  // Top-rated / newest six, limited server-side with .limit(6).
+  const { data: studios, loading, error, reload } = useStudios({
+    limit: 6,
+    sort: "recommended",
+  });
   const featured = filterStudios(studios, { sort: "recommended" }).slice(0, 6);
 
   return (
@@ -40,7 +44,7 @@ export function FeaturedStudios() {
           <DataError className="mt-11" message={error} onRetry={reload} />
         ) : loading && studios.length === 0 ? (
           <div className="mt-11">
-            <StudioGridSkeleton count={3} />
+            <StudioGridSkeleton count={6} />
           </div>
         ) : featured.length > 0 ? (
           <div className="mt-11 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">

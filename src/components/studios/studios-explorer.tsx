@@ -40,7 +40,15 @@ export function StudiosExplorer() {
   const sort = (searchParams.get("sort") as StudioSort) || "recommended";
 
   const [searchValue, setSearchValue] = useState(query);
+  const [syncedQuery, setSyncedQuery] = useState(query);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+
+  // Keep the input in step with the URL when it changes underneath us
+  // (browser back/forward, or a link that carries ?q=).
+  if (syncedQuery !== query) {
+    setSyncedQuery(query);
+    setSearchValue(query);
+  }
 
   const { data: studios, loading, error, reload } = useStudios();
 
