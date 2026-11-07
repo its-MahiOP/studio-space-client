@@ -5,9 +5,9 @@ import { auth } from "@/lib/auth";
 
 /**
  * Name of the HTTPOnly cookie that carries the API JWT to the Express data
- * server. Cookies ignore ports, so localhost:3000 may set it and
- * localhost:5000 reads it from the Cookie header — but JavaScript on the page
- * never can, because the cookie is marked HttpOnly.
+ * server. The cookie is scoped to this app's origin and forwarded to the data
+ * API by the same-origin /api/backend proxy — but JavaScript on the page never
+ * can read it, because the cookie is marked HttpOnly.
  */
 const API_TOKEN_COOKIE = "studiospace_token";
 const MAX_AGE_SECONDS = 7 * 24 * 60 * 60;

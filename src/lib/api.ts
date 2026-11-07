@@ -6,11 +6,14 @@ import type {
   StudioInput,
 } from "@/types/studio";
 
-const rawBaseUrl = process.env.NEXT_PUBLIC_SERVER_BASE_URL ?? "";
-export const API_BASE_URL = (rawBaseUrl.trim() || "http://localhost:5000").replace(
-  /\/+$/,
-  "",
-);
+/**
+ * All API traffic goes through the same-origin `/api/backend` proxy (see
+ * src/app/api/backend/[...path]/route.ts), which forwards requests to the
+ * Express data API using the server-side `SERVER_BASE_URL` env var. Keeping
+ * the browser on one origin means the HTTPOnly JWT cookie is always sent,
+ * even when both apps live on different deployment domains.
+ */
+export const API_BASE_URL = "/api/backend";
 
 export class ApiError extends Error {
   status: number;
@@ -50,8 +53,8 @@ async function request<T>(
       ...rest,
       cache: "no-store",
       // Attach the HTTPOnly JWT cookie so server-side mutations can authorize
-      // the caller (Challenge 1). Cookies are host-scoped, so the cookie set
-      // on localhost:3000 is sent to localhost:5000 as well.
+      // the caller (Challenge 1). The request stays same-origin and the proxy
+      // forwards the Cookie header to the data API server-side.
       credentials: "include",
       headers: {
         Accept: "application/json",
