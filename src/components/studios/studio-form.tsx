@@ -22,6 +22,7 @@ import { AMENITY_OPTIONS, CATEGORY_OPTIONS } from "@/data/amenities";
 import { createStudio, updateStudio } from "@/lib/api";
 import type { Studio, StudioInput } from "@/types/studio";
 import { useAuth } from "@/components/providers/auth-provider";
+import { GalleryManager } from "@/components/studios/gallery-manager";
 import { ImageUploader } from "@/components/studios/image-uploader";
 import { toast } from "@/components/ui/toast";
 
@@ -64,6 +65,7 @@ export function StudioForm({
   );
   const [location, setLocation] = useState(studio?.location ?? "");
   const [imageUrl, setImageUrl] = useState(studio?.imageUrl ?? "");
+  const [images, setImages] = useState<string[]>(studio?.images ?? []);
   const [overview, setOverview] = useState(studio?.overview ?? "");
   const [amenities, setAmenities] = useState<string[]>(studio?.amenities ?? []);
   const [customAmenity, setCustomAmenity] = useState("");
@@ -151,6 +153,7 @@ export function StudioForm({
       maxCapacity: Math.round(capacity),
       location: location.trim(),
       imageUrl: normalizedImage,
+      images: images.map((image) => image.trim()).filter(Boolean),
       amenities,
       overview: overview.trim(),
       ownerEmail: editing && studio ? studio.ownerEmail : user.email,
@@ -506,6 +509,10 @@ export function StudioForm({
           <div className="mt-2">
             <ImageUploader value={imageUrl} onChange={setImageUrl} />
           </div>
+        </div>
+
+        <div className="mt-4">
+          <GalleryManager images={images} onChange={setImages} />
         </div>
       </section>
 

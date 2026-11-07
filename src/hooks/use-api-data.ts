@@ -5,9 +5,11 @@ import { useCallback, useEffect, useState } from "react";
 import {
   getStudio,
   listBookings,
+  listReviews,
   listStudios,
+  listWishlist,
 } from "@/lib/api";
-import type { Booking, Studio } from "@/types/studio";
+import type { Booking, Review, Studio, WishlistItem } from "@/types/studio";
 
 function errorMessage(error: unknown) {
   if (error instanceof Error) return error.message;
@@ -118,6 +120,22 @@ export function useStudio(id: string) {
 export function useBookings(email: string) {
   return useAsyncData<Booking[]>(
     (signal) => listBookings(email, signal),
+    [email],
+    [],
+  );
+}
+
+export function useReviews(studioId: string) {
+  return useAsyncData<Review[]>(
+    (signal) => listReviews(studioId, signal),
+    [studioId],
+    [],
+  );
+}
+
+export function useWishlist(email: string) {
+  return useAsyncData<WishlistItem[]>(
+    (signal) => listWishlist(email, signal),
     [email],
     [],
   );

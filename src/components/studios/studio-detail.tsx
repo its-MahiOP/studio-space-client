@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useState } from "react";
 import {
   ArrowLeftIcon,
+  ArrowRightIcon,
   ArrowUpRightIcon,
   BadgeCheckIcon,
   CalendarCheckIcon,
@@ -24,6 +25,7 @@ import { useStudio, useStudios } from "@/hooks/use-api-data";
 import { BookingModal } from "@/components/studios/booking-modal";
 import { BookingPanel } from "@/components/studios/booking-panel";
 import { MobileBookingBar } from "@/components/studios/mobile-booking-bar";
+import { ReviewsSection } from "@/components/studios/reviews-section";
 import { StudioCard } from "@/components/studios/studio-card";
 import { StudioImage } from "@/components/shared/studio-image";
 import { DataError } from "@/components/shared/data-states";
@@ -92,13 +94,14 @@ export function StudioDetail() {
   const categoryHref = category
     ? `/studios?category=${category.slug}`
     : "/studios";
-  const images = (
-    studio.images && studio.images.length > 0
-      ? studio.images
-      : [studio.imageUrl]
-  ).filter(Boolean);
+  const images = Array.from(
+    new Set(
+      [studio.imageUrl, ...(studio.images ?? [])].filter(
+        (image): image is string => Boolean(image),
+      ),
+    ),
+  );
   const related = relatedStudios(studio, allStudios, 3);
-  const filledStars = Math.round(studio.rating);
 
   return (
     <div className="pb-28 lg:pb-24">
@@ -125,12 +128,50 @@ export function StudioDetail() {
         <div className="mt-5 grid gap-8 lg:grid-cols-[1fr_380px] lg:gap-10">
           <div className="min-w-0">
             <div className="grid gap-2.5">
-              <StudioImage
-                src={images[activeImage] ?? images[0]}
-                alt={`${studio.title} — view ${activeImage + 1}`}
-                priority
-                className="aspect-[4/3] rounded-[20px] sm:aspect-[16/11]"
-              />
+              <div className="relative overflow-hidden rounded-[20px]">
+                <StudioImage
+                  src={images[activeImage] ?? images[0]}
+                  alt={`${studio.title} — view ${activeImage + 1}`}
+                  priority
+                  className="aspect-[4/3] sm:aspect-[16/11]"
+                />
+                {images.length > 1 ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setActiveImage(
+                          (current) =>
+                            (current - 1 + images.length) % images.length,
+                        )
+                      }
+                      aria-label={`Previous photo, ${images.length} in gallery`}
+                      className="absolute top-1/2 left-3 grid size-9 -translate-y-1/2 place-items-center rounded-full border border-paper/40 bg-ink/55 text-paper backdrop-blur-sm transition-colors hover:bg-ink/85 focus-visible:ring-2 focus-visible:ring-sodium/70"
+                    >
+                      <ArrowLeftIcon className="size-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setActiveImage(
+                          (current) => (current + 1) % images.length,
+                        )
+                      }
+                      aria-label={`Next photo, ${images.length} in gallery`}
+                      className="absolute top-1/2 right-3 grid size-9 -translate-y-1/2 place-items-center rounded-full border border-paper/40 bg-ink/55 text-paper backdrop-blur-sm transition-colors hover:bg-ink/85 focus-visible:ring-2 focus-visible:ring-sodium/70"
+                    >
+                      <ArrowRightIcon className="size-4" />
+                    </button>
+                    <span
+                      aria-live="polite"
+                      className="absolute right-3 bottom-3 rounded-full bg-ink/65 px-2.5 py-1 font-mono text-[10px] tracking-[0.1em] text-paper backdrop-blur-sm"
+                    >
+                      {String(activeImage + 1).padStart(2, "0")} /{" "}
+                      {String(images.length).padStart(2, "0")}
+                    </span>
+                  </>
+                ) : null}
+              </div>
               {images.length > 1 ? (
                 <div className="no-scrollbar flex gap-2.5 overflow-x-auto">
                   {images.map((image, index) => (
@@ -297,40 +338,7 @@ export function StudioDetail() {
               </div>
             </section>
 
-            <section className="mt-9" aria-labelledby="reviews">
-              <p className="eyebrow text-muted-ink">04 / Reviews</p>
-              <h2 id="reviews" className="display-md mt-3">
-                What creators say
-              </h2>
-              <div className="mt-5 rounded-[20px] border border-ink/10 bg-card-cream p-5 sm:p-6">
-                <div className="flex flex-wrap items-center gap-6">
-                  <div>
-                    <p className="font-display text-4xl leading-none tracking-[-0.03em]">
-                      {studio.rating > 0 ? formatRating(studio.rating) : "New"}
-                    </p>
-                    <div className="mt-2 flex items-center gap-0.5">
-                      {Array.from({ length: 5 }).map((_, index) => (
-                        <StarIcon
-                          key={index}
-                          className={
-                            index < filledStars
-                              ? "size-3.5 fill-sodium stroke-sodium"
-                              : "size-3.5 stroke-ink/20"
-                          }
-                        />
-                      ))}
-                    </div>
-                  </div>
-                  <div className="max-w-md border-ink/10 sm:border-l sm:pl-6">
-                    <p className="text-[12px] leading-6 text-muted-ink">
-                      {studio.rating > 0
-                        ? "Ratings come from creators who completed a booking in this room. Written reviews open once the session wraps."
-                        : "No reviews yet. This is a new listing — be the first crew to book it and leave a rating."}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </section>
+            <ReviewsSection studio={studio} onRatingChange={reload} />
           </div>
 
           <BookingPanel studio={studio} onBook={() => setBookingOpen(true)} />

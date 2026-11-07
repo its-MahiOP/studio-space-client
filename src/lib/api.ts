@@ -2,8 +2,11 @@ import type {
   Booking,
   BookingInput,
   BookingStatus,
+  Review,
+  ReviewInput,
   Studio,
   StudioInput,
+  WishlistItem,
 } from "@/types/studio";
 
 /**
@@ -217,6 +220,70 @@ export async function updateBookingStatus(id: string, status: BookingStatus) {
   return request<{ success: boolean; modifiedCount: number }>(
     `/bookings/${encodeURIComponent(id)}`,
     { method: "PATCH", body: JSON.stringify({ status }) },
+  );
+}
+
+function normalizeReview(raw: Partial<Review> & { _id: string }): Review {
+  return {
+    ...raw,
+    _id: String(raw._id),
+    studioId: String(raw.studioId ?? ""),
+    studioTitle: raw.studioTitle ?? "",
+    userEmail: raw.userEmail ?? "",
+    userName: raw.userName ?? "Creator",
+    rating: Math.min(Math.max(toNumber(raw.rating, 5), 1), 5),
+    comment: raw.comment ?? "",
+  };
+}
+
+/** Reviews for a studio, newest first. */
+export async function listReviews(
+  studioId: string,
+  signal?: AbortSignal,
+): Promise<Review[]> {
+  const data = await request<Review[]>(
+    `/studios/${encodeURIComponent(studioId)}/reviews`,
+    { signal },
+  );
+  return Array.isArray(data) ? data.map(normalizeReview) : [];
+}
+
+/** Posts (or replaces) the caller's review and returns the new aggregate. */
+export async function createReview(
+  studioId: string,
+  input: ReviewInput,
+): Promise<{ success: boolean; rating: number; reviewCount: number }> {
+  return request(
+    `/studios/${encodeURIComponent(studioId)}/reviews`,
+    { method: "POST", body: JSON.stringify(input) },
+  );
+}
+
+/** Saved-studio rows for a user, newest first. */
+export async function listWishlist(
+  email: string,
+  signal?: AbortSignal,
+): Promise<WishlistItem[]> {
+  const data = await request<WishlistItem[]>(
+    `/wishlist?email=${encodeURIComponent(email)}`,
+    { signal },
+  );
+  return Array.isArray(data)
+    ? data.map((item) => ({ ...item, _id: String(item._id), studioId: String(item.studioId) }))
+    : [];
+}
+
+export async function addWishlist(studioId: string) {
+  return request<{ success: boolean; saved: boolean }>("/wishlist", {
+    method: "POST",
+    body: JSON.stringify({ studioId }),
+  });
+}
+
+export async function removeWishlist(studioId: string) {
+  return request<{ success: boolean; deletedCount: number }>(
+    `/wishlist/${encodeURIComponent(studioId)}`,
+    { method: "DELETE" },
   );
 }
 
