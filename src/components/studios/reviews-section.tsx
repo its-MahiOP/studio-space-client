@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 
 import { createReview } from "@/lib/api";
-import type { Review, Studio } from "@/types/studio";
+import type { Studio } from "@/types/studio";
 import { formatRating } from "@/lib/format";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useReviews } from "@/hooks/use-api-data";
@@ -77,9 +77,7 @@ export function ReviewsSection({
     count > 0
       ? reviews.reduce((total, review) => total + review.rating, 0) / count
       : studio.rating;
-  const filledStars = Math.round(average);
   const isOwner = Boolean(user && user.email === studio.ownerEmail);
-
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
