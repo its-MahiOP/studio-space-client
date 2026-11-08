@@ -1,16 +1,55 @@
-# StudioSpace — Client
+# StudioSpace
 
-The web app for StudioSpace: a peer-to-peer marketplace where creators discover,
-inspect and book photo studios, sound stages, podcast rooms, music suites and
-art workshops from independent hosts.
+**Live site:** https://studio-space-client-beta.vercel.app/
 
-Built with Next.js (App Router) and deployed as a static-friendly Vercel app
-that talks to the [`studio-space-server`](https://github.com/its-MahiOP/studio-space-server)
-Express API through a same-origin proxy.
+StudioSpace is a peer-to-peer marketplace where creators discover, inspect and
+book photo studios, sound stages, podcast rooms, music suites and art workshops
+from independent hosts — with transparent hourly pricing, real availability and
+no middle layer.
+
+The frontend lives in this repo; the data API lives in
+[`studio-space-server`](https://github.com/its-MahiOP/studio-space-server) and
+is reached through a same-origin proxy.
 
 ---
 
-## Stack
+## At a glance
+
+- **Live website** — https://studio-space-client-beta.vercel.app/ (deployed on
+  Vercel; API health check at `/api/backend/health` returns
+  `{"status":"ok","database":"connected"}`)
+- **Feature-rich** — home page with hero slides, live featured grid and five
+  category sections; full studio CRUD with image gallery; bookings with status
+  transitions and double-booking protection; reviews (one per user per studio);
+  saved-studios wishlist; PDF booking invoices; light/dark theme
+- **Tech stack** — Next.js 16 (App Router, Turbopack, React Compiler), Tailwind
+  CSS v4, Base UI + lucide icons, BetterAuth (email/password + Google) with
+  MongoDB, jsPDF, and an Express + MongoDB API on Vercel serverless
+- **Local setup** — clone, `npm install`, copy `.env.example` → `.env`, fill in
+  `MONGO_URI` + `BETTER_AUTH_SECRET`, start the API (`npm run dev` on :5000)
+  then the client (`npm run dev` on :3000)
+- **Examiner test credentials** — sign in at
+  https://studio-space-client-beta.vercel.app/login with
+  **`test@studiospace.dev`** / **`StudioSpace2026`** (or register a new account
+  at `/register`)
+
+---
+
+## Examiner test account
+
+| Field    | Value                                                            |
+| -------- | ---------------------------------------------------------------- |
+| Email    | `test@studiospace.dev`                                           |
+| Password | `StudioSpace2026`                                                |
+| Sign in  | https://studio-space-client-beta.vercel.app/login                |
+
+The account has no listings yet — use **Add a studio** to create one, then book,
+review and save studios to exercise every flow. It works locally and on the live
+deployment.
+
+---
+
+## Tech stack
 
 | Layer      | Choice                                                  |
 | ---------- | ------------------------------------------------------- |
@@ -77,9 +116,25 @@ src/
 
 ---
 
-## Environment variables
+## Local setup
 
-Copy `.env.example` to `.env` (`.env*` is git-ignored; `.env.example` is not):
+**Prerequisites:** Node.js 20+, a MongoDB database (Atlas or local), and the
+companion API repo cloned next to this one.
+
+```bash
+# 1. Start the API (separate terminal) — http://localhost:5000
+cd "../Studio Space Server/studio-space-server"
+npm install
+cp .env.example .env        # set MONGO_URI
+npm run dev
+
+# 2. Start the client — http://localhost:3000
+npm install
+cp .env.example .env        # fill in the values below
+npm run dev
+```
+
+`.env` (copy from `.env.example`; `.env*` is git-ignored, `.env.example` is not):
 
 ```bash
 # Required — MongoDB connection string (BetterAuth stores users here too)
@@ -102,27 +157,14 @@ BETTER_AUTH_GOOGLE_CLIENT_SECRET=
 NEXT_PUBLIC_IMGBB_API_KEY=
 ```
 
-> Note: `.env` is intentionally not committed. Set every variable above in
-> Vercel → Project → Settings → Environment Variables.
+Open http://localhost:3000 and sign in with the examiner account above.
 
----
+Both apps share the same MongoDB database: BetterAuth owns the `user` /
+`session` / `account` collections, the API owns `studios`, `bookings`, `reviews`
+and `wishlists`.
 
-## Local development
-
-```bash
-# 1. Start the API (separate terminal)
-cd "../Studio Space Server/studio-space-server"
-npm install && npm run dev          # http://localhost:5000
-
-# 2. Start the client
-npm install
-cp .env.example .env                # fill in MONGO_URI + BETTER_AUTH_SECRET
-npm run dev                         # http://localhost:3000
-```
-
-Both apps share the same MongoDB database: BetterAuth owns the `users`/
-`sessions` collections, the API owns `studios`, `bookings`, `reviews` and
-`wishlists`.
+> On Vercel, set every variable above in Project → Settings → Environment
+> Variables (Production + Preview).
 
 ### Checks before you push
 
@@ -136,7 +178,9 @@ npm run build        # production build (also validates every route)
 
 ## Deploying to Vercel
 
-Deploy the **API first**, then this app — the client needs the API's URL.
+The client is live at **https://studio-space-client-beta.vercel.app/** — these
+are the steps that produced it. Deploy the **API first**, then this app, since
+the client needs the API's URL.
 
 1. **Import both repos** into Vercel (client preset: *Next.js*, defaults).
 2. **Set the client's environment variables** for Production + Preview:
@@ -144,11 +188,15 @@ Deploy the **API first**, then this app — the client needs the API's URL.
    `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, and optionally the Google +
    ImgBB keys.
 3. **Google OAuth (optional):** in Google Cloud Console add the redirect URI
-   `https://<your-client>.vercel.app/api/auth/callback/google`.
+   `https://studio-space-client-beta.vercel.app/api/auth/callback/google`.
 4. **Atlas:** allow network access from Vercel (0.0.0.0/0 or the Vercel
    integration) so both deployments can reach the database.
 5. **Deploy the client**, then update the server's `AUTH_JWKS_URL` and
-   `CLIENT_ORIGINS` to the client's final URL and redeploy the server.
+   `CLIENT_ORIGINS` to `https://studio-space-client-beta.vercel.app` and
+   redeploy the server.
+
+Verify: `https://studio-space-client-beta.vercel.app/api/backend/health`
+should return `{"status":"ok","database":"connected"}`.
 
 ---
 
