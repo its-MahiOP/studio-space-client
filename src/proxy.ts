@@ -9,8 +9,22 @@ import { NextResponse, type NextRequest } from "next/server";
  * first line of defense; `RequireAuth` and the dashboard layout repeat the
  * check on the client for defense in depth.
  */
+
+/**
+ * BetterAuth prefixes its cookies with `__Secure-` whenever the origin is
+ * HTTPS, so the same deployment serves a differently-named cookie than local
+ * http://localhost:3000. Checking only the bare name logged every live user
+ * out of the protected routes despite a valid session — accept either.
+ */
+const SESSION_COOKIE_NAMES = [
+  "__Secure-better-auth.session_token",
+  "better-auth.session_token",
+] as const;
+
 export function proxy(request: NextRequest) {
-  const sessionToken = request.cookies.get("better-auth.session_token")?.value;
+  const sessionToken = SESSION_COOKIE_NAMES.map(
+    (name) => request.cookies.get(name)?.value,
+  ).find(Boolean);
 
   if (!sessionToken) {
     const loginUrl = new URL("/login", request.url);
